@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_weight="2"
             android:layout_height="wrap_content"
-            android:text="Jun 2023"
+            android:text="@string/MMyyyy"
             android:textStyle="bold"
             android:textSize="25sp"
             android:textAlignment="center"
@@ -61,7 +61,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="SUN"
+            android:text="@string/sunday"
             android:textColor="@color/black"
             android:textAlignment="center"
             android:textSize="16sp"/>
@@ -70,7 +70,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="MON"
+            android:text="@string/monday"
             android:textColor="@color/black"
             android:textAlignment="center"
             android:textSize="16sp"/>
@@ -79,7 +79,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="TUE"
+            android:text="@string/tuesday"
             android:textColor="@color/black"
             android:textAlignment="center"
             android:textSize="16sp"/>
@@ -88,7 +88,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="WED"
+            android:text="@string/wednesday"
             android:textColor="@color/black"
             android:textAlignment="center"
             android:textSize="16sp"/>
@@ -97,7 +97,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="THUR"
+            android:text="@string/thursday"
             android:textColor="@color/black"
             android:textAlignment="center"
             android:textSize="16sp"/>
@@ -106,7 +106,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="FRI"
+            android:text="@string/friday"
             android:textColor="@color/black"
             android:textAlignment="center"
             android:textSize="16sp"/>
@@ -115,7 +115,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="SAT"
+            android:text="@string/saturday"
             android:textColor="@color/black"
             android:textAlignment="center"
             android:textSize="16sp"/>
@@ -153,8 +153,6 @@
         android:layout_marginTop="120dp" />
 
 </FrameLayout>
-
-
 
 
 
