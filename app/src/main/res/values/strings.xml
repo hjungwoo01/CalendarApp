@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">CalendarApp</string>
+    <string name="button_save_event">Save Event</string>
+    <string name="event_repeat">Event Repeat</string>
+    <string name="event_end">Event End</string>
+    <string name="event_start">Event Start</string>
+    <string name="event_memo">Event Memo</string>
+    <string name="event_name">Event Name</string>
+    <string name="new_event">New Event</string>
+    <string name="prev"><![CDATA[<]]></string>
+    <string name="next"><![CDATA[>]]></string>
+    <string name="add">+</string>
+</resources>
