@@ -1,12 +1,17 @@
 package com.hjungwoo01.calendarapp.model;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class Event {
     private long id;
     private String eventName;
     private String eventMemo;
-    private int eventStart;
-    private int eventEnd;
-    private int eventRepeat;
+    private String eventStart; //yyyyMMddHHmm
+    private String eventEnd; //yyyyMMddHHmm
+    private String eventRepeat;
 
     public long getId() { return this.id; }
     public void setId(long id) { this.id = id; }
@@ -16,11 +21,28 @@ public class Event {
 
     public void setEventMemo(String eventMemo) { this.eventMemo = eventMemo; }
 
-    public int getEventStart() { return this.eventStart; }
-    public void setEventStart(int eventStart) { this.eventStart = eventStart; }
+    public String getEventStart() { return this.eventStart; }
+    public void setEventStart(String eventStart) { this.eventStart = eventStart; }
 
-    public int getEventEnd() { return this.eventEnd; }
-    public void setEventEnd(int eventEnd) { this.eventEnd = eventEnd; }
+    public String getEventEnd() { return this.eventEnd; }
+    public void setEventEnd(String eventEnd) { this.eventEnd = eventEnd; }
 
-    public void setEventRepeat(int eventRepeat) { this.eventRepeat = eventRepeat; }
+    public void setEventRepeat(String eventRepeat) { this.eventRepeat = eventRepeat; }
+
+    public Date getStartDate() throws ParseException {
+        return parseDateTime(eventStart);
+    }
+
+    public Date getEndDate() throws ParseException {
+        return parseDateTime(eventEnd);
+    }
+
+    private Date parseDateTime(String dateTime) throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmm", Locale.getDefault());
+        return format.parse(dateTime);
+    }
+
+    public String getEventMemo() { return this.eventMemo; }
+
+    public String getEventRepeat() { return this.eventRepeat; }
 }

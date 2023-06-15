@@ -26,6 +26,7 @@ public class EventActivity extends AppCompatActivity {
         setContentView(R.layout.activity_event);
         initializeComponents();
     }
+
     private void initializeComponents() {
         TextInputEditText inputEditText = findViewById(R.id.form_textFieldEventName);
         TextInputEditText inputEditEventMemo = findViewById(R.id.form_textFieldEventMemo);
@@ -40,21 +41,10 @@ public class EventActivity extends AppCompatActivity {
         buttonSave.setOnClickListener(view -> {
             String eventName = String.valueOf(inputEditText.getText());
             String eventMemo = String.valueOf(inputEditEventMemo.getText());
-            int eventStart = 0;
-            int eventEnd = 0;
-            int eventRepeat = 0;
+            String eventStart = String.valueOf(inputEditEventStart.getText());
+            String eventEnd = String.valueOf(inputEditEventEnd.getText());
+            String eventRepeat = String.valueOf(inputEditEventRepeat.getText());
 
-            if (!TextUtils.isEmpty(inputEditEventStart.getText())) {
-                eventStart = Integer.parseInt(String.valueOf(inputEditEventStart.getText()));
-            }
-
-            if (!TextUtils.isEmpty(inputEditEventEnd.getText())) {
-                eventEnd = Integer.parseInt(String.valueOf(inputEditEventEnd.getText()));
-            }
-
-            if (!TextUtils.isEmpty(inputEditEventRepeat.getText())) {
-                eventRepeat = Integer.parseInt(String.valueOf(inputEditEventRepeat.getText()));
-            }
 
             Event event = new Event();
             event.setEventName(eventName);
@@ -72,7 +62,7 @@ public class EventActivity extends AppCompatActivity {
 
                     } else {
                         Toast.makeText(EventActivity.this, "Save failed.", Toast.LENGTH_SHORT).show();
-                        // Handle the failed response
+                        // Handle failed response
                     }
                 }
 

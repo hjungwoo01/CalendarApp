@@ -8,24 +8,27 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
+import com.hjungwoo01.calendarapp.model.Event;
 
-class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder>
-{
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+
+class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
     private final ArrayList<LocalDate> days;
     private final OnItemListener onItemListener;
-
-    public CalendarAdapter(ArrayList<LocalDate> days, OnItemListener onItemListener)
-    {
+    private List<Event> events; // List to store the events
+    public CalendarAdapter(ArrayList<LocalDate> days, OnItemListener onItemListener, List<Event> events) {
         this.days = days;
         this.onItemListener = onItemListener;
+        this.events = events;
     }
 
     @NonNull
     @Override
-    public CalendarViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
-    {
+    public CalendarViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = inflater.inflate(R.layout.calendar_cell, parent, false);
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
@@ -37,18 +40,47 @@ class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder>
         return new CalendarViewHolder(view, onItemListener, days);
     }
 
+    public void setEvents(List<Event> events) {
+        this.events = events;
+        notifyDataSetChanged();
+    }
+
     @Override
-    public void onBindViewHolder(@NonNull CalendarViewHolder holder, int position)
-    {
+    public void onBindViewHolder(@NonNull CalendarViewHolder holder, int position) {
         final LocalDate date = days.get(position);
         if(date == null)
             holder.dayOfMonth.setText("");
-        else
-        {
+        else {
             holder.dayOfMonth.setText(String.valueOf(date.getDayOfMonth()));
             if(date.equals(CalendarUtils.selectedDate))
                 holder.parentView.setBackgroundColor(Color.LTGRAY);
+
+            if (hasEventOnDate(date)) {
+                holder.eventIndicator.setVisibility(View.VISIBLE);
+            } else {
+                holder.eventIndicator.setVisibility(View.INVISIBLE);
+            }
+
+            holder.parentView.setOnClickListener(v -> {
+                if (onItemListener != null) {
+                    onItemListener.onItemClick(position, date);
+                }
+            });
         }
+    }
+
+    private boolean hasEventOnDate(LocalDate date) {
+        for (Event event : events) {
+            try {
+                LocalDate eventDate = event.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                if (eventDate.equals(date)) {
+                    return true;
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
     }
 
     @Override
@@ -57,8 +89,7 @@ class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder>
         return days.size();
     }
 
-    public interface OnItemListener
-    {
+    public interface OnItemListener {
         void onItemClick(int position, LocalDate date);
     }
 }
