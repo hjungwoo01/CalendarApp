@@ -17,6 +17,7 @@
         android:theme="@style/Theme.CalendarApp"
         tools:targetApi="31">
         <activity android:name=".EventActivity" />
+        <activity android:name=".EventDetailsActivity"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">

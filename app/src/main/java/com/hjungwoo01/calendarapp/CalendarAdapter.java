@@ -40,25 +40,24 @@ class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
         return new CalendarViewHolder(view, onItemListener, days);
     }
 
-    public void setEvents(List<Event> events) {
-        this.events = events;
-        notifyDataSetChanged();
-    }
-
     @Override
     public void onBindViewHolder(@NonNull CalendarViewHolder holder, int position) {
         final LocalDate date = days.get(position);
-        if(date == null)
+        if (date == null) {
             holder.dayOfMonth.setText("");
-        else {
+            holder.eventIndicator.setVisibility(View.INVISIBLE); // Hide event indicator for empty dates
+        } else {
             holder.dayOfMonth.setText(String.valueOf(date.getDayOfMonth()));
-            if(date.equals(CalendarUtils.selectedDate))
+            if (date.equals(CalendarUtils.selectedDate)) {
                 holder.parentView.setBackgroundColor(Color.LTGRAY);
+            } else {
+                holder.parentView.setBackgroundColor(Color.WHITE);
+            }
 
             if (hasEventOnDate(date)) {
-                holder.eventIndicator.setVisibility(View.VISIBLE);
+                holder.eventIndicator.setVisibility(View.VISIBLE); // Show event indicator for dates with events
             } else {
-                holder.eventIndicator.setVisibility(View.INVISIBLE);
+                holder.eventIndicator.setVisibility(View.INVISIBLE); // Hide event indicator for dates without events
             }
 
             holder.parentView.setOnClickListener(v -> {

@@ -5,10 +5,10 @@
     android:id="@+id/parentView"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <ImageView
+    <Button
         android:id="@+id/eventIndicator"
         android:layout_width="0dp"
-        android:layout_height="2dp"
+        android:layout_height="4dp"
         android:background="@color/primary"
         app:layout_constraintTop_toBottomOf="@id/cellDayText"
         app:layout_constraintBottom_toBottomOf="parent"

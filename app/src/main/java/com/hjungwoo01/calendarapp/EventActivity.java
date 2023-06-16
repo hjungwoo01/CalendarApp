@@ -1,8 +1,6 @@
 package com.hjungwoo01.calendarapp;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -58,24 +56,20 @@ public class EventActivity extends AppCompatActivity {
                 public void onResponse(Call<Void> call, Response<Void> response) {
                     if (response.isSuccessful()) {
                         Toast.makeText(EventActivity.this, "Save successful.", Toast.LENGTH_SHORT).show();
-                        backToMonthView();
 
+                        // Finish the activity to return to the MainActivity
+                        finish();
                     } else {
                         Toast.makeText(EventActivity.this, "Save failed.", Toast.LENGTH_SHORT).show();
-                        // Handle failed response
                     }
                 }
 
                 @Override
                 public void onFailure(Call<Void> call, Throwable t) {
                     Toast.makeText(EventActivity.this, "Save failed.", Toast.LENGTH_SHORT).show();
-                    Log.e("MainActivity", "Error occurred: " + t.getMessage());
+                    Log.e("EventActivity", "Error occurred: " + t.getMessage());
                 }
             });
         });
-    }
-
-    private void backToMonthView() {
-        startActivity(new Intent(this, MainActivity.class));
     }
 }

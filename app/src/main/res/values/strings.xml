@@ -18,4 +18,6 @@
     <string name="thursday">THUR</string>
     <string name="friday">FRI</string>
     <string name="saturday">SAT</string>
+    <string name="button_delete_event">Delete</string>
+    <string name="button_update_event">Save</string>
 </resources>

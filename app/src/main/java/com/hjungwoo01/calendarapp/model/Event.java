@@ -1,11 +1,12 @@
 package com.hjungwoo01.calendarapp.model;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class Event {
+public class Event implements Serializable {
     private long id;
     private String eventName;
     private String eventMemo;

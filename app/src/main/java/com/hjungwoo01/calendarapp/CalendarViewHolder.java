@@ -7,6 +7,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -14,7 +16,7 @@ public class CalendarViewHolder extends RecyclerView.ViewHolder implements View.
     private final ArrayList<LocalDate> days;
     public final View parentView;
     public final TextView dayOfMonth;
-    public final ImageView eventIndicator;
+    public final MaterialButton eventIndicator;
     private final CalendarAdapter.OnItemListener onItemListener;
     public CalendarViewHolder(@NonNull View itemView, CalendarAdapter.OnItemListener onItemListener, ArrayList<LocalDate> days) {
         super(itemView);
@@ -24,6 +26,7 @@ public class CalendarViewHolder extends RecyclerView.ViewHolder implements View.
         itemView.setOnClickListener(this);
         this.days = days;
         eventIndicator = itemView.findViewById(R.id.eventIndicator);
+        eventIndicator.setOnClickListener(this);
     }
 
     @Override

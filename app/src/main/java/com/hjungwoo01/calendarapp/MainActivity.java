@@ -1,19 +1,18 @@
 package com.hjungwoo01.calendarapp;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Bundle;
-
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +28,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements CalendarAdapter.OnItemListener {
+    static final int REQUEST_CODE_ADD_EVENT = 1;
+    static final int REQUEST_CODE_UPDATE_EVENT = 2;
+    static final int REQUEST_CODE_REMOVE_EVENT = 3;
     private TextView monthYearText;
     private RecyclerView calendarRecyclerView;
 
@@ -41,7 +43,14 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
         initWidgets();
         CalendarUtils.selectedDate = LocalDate.now();
         setMonthView();
-        events = new ArrayList<>();
+        this.events = new ArrayList<>();
+        fetchEvents();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh the calendar view when the activity is resumed
         fetchEvents();
     }
 
@@ -54,7 +63,9 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
         monthYearText.setText(monthYearFromDate(CalendarUtils.selectedDate));
         ArrayList<LocalDate> daysInMonth = daysInMonthArray(CalendarUtils.selectedDate);
 
-        CalendarAdapter calendarAdapter = new CalendarAdapter(daysInMonth, this, events);
+        List<Event> validEvents = (events != null && !events.isEmpty()) ? events : new ArrayList<>();
+
+        CalendarAdapter calendarAdapter = new CalendarAdapter(daysInMonth, this, validEvents);
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getApplicationContext(), 7);
         calendarRecyclerView.setLayoutManager(layoutManager);
         calendarRecyclerView.setAdapter(calendarAdapter);
@@ -71,15 +82,17 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
             @Override
             public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
                 if (response.isSuccessful()) {
-                    // Clear the existing events list
-                    events.clear();
+                    // Create a local variable to store the fetched events
+                    List<Event> fetchedEvents = response.body();
 
-                    // Add the fetched events to the events list
-                    assert response.body() != null;
-                    events.addAll(response.body());
-
-                    // Refresh the calendar view to display the events
-                    setMonthView();
+                    if (fetchedEvents != null) {
+                        // Refresh the calendar view to display the fetched events
+                        setEvents(fetchedEvents);
+                        setMonthView();
+                    } else {
+                        // Handle the case when no events are fetched
+                        Toast.makeText(MainActivity.this, "No events found.", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Toast.makeText(MainActivity.this, "Failed to fetch events.", Toast.LENGTH_SHORT).show();
                 }
@@ -91,6 +104,13 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
                 Log.e("MainActivity", "Error occurred: " + t.getMessage());
             }
         });
+    }
+
+    private void setEvents(List<Event> fetchedEvents) {
+        if (fetchedEvents != null && !fetchedEvents.isEmpty()) {
+            events.clear();
+            events.addAll(fetchedEvents);
+        }
     }
 
     public void previousMonthAction(View view) {
@@ -105,14 +125,39 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
 
     @Override
     public void onItemClick(int position, LocalDate date) {
-        if(date != null) {
+        if (date != null) {
             CalendarUtils.selectedDate = date;
             setMonthView();
+
+            // Retrieve the clicked event from the events list
+            Event clickedEvent = getClickedEvent(date);
+
+            if (clickedEvent != null) {
+                // Retrieve the event ID from the clicked event
+                long eventId = clickedEvent.getId();
+
+                // Open the EventDetailsActivity and pass the event ID
+                Intent intent = new Intent(MainActivity.this, EventDetailsActivity.class);
+                intent.putExtra("eventId", eventId);
+                startActivity(intent);
+            } else {
+                // Show a message that there is no event on the clicked date
+                Toast.makeText(MainActivity.this, "No event on this date", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
     public void newEventAction(View view) {
-        startActivity(new Intent(this, EventActivity.class));
+        startActivity(new Intent(MainActivity.this, EventActivity.class));
     }
 
+    private Event getClickedEvent(LocalDate date) {
+        for (Event event : events) {
+            LocalDate eventDate = LocalDate.parse(event.getEventStart(), DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
+            if (eventDate.equals(date)) {
+                return event;
+            }
+        }
+        return null;
+    }
 }
