@@ -28,9 +28,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements CalendarAdapter.OnItemListener {
-    static final int REQUEST_CODE_ADD_EVENT = 1;
-    static final int REQUEST_CODE_UPDATE_EVENT = 2;
-    static final int REQUEST_CODE_REMOVE_EVENT = 3;
     private TextView monthYearText;
     private RecyclerView calendarRecyclerView;
 
