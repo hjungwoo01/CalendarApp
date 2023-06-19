@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,37 +11,178 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:layout_gravity="top"
+        android:layout_marginTop="20dp"
+        android:background="@color/primary">
+
+        <Button
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:onClick="backToMain"
+            android:text="@string/prev"
+            android:backgroundTint="@color/primary"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@+id/newEvent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/new_event_text"
+            android:textStyle="bold"
+            android:textSize="25sp"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:layout_gravity="center"
+            android:layout_weight="2"/>
+
+        <Space
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="80dp">
+
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/form_textFieldEventName"
-            android:layout_marginBottom="5dp"
-            android:hint="@string/event_name"
+            android:textSize="18sp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:hint="@string/event_name" />
+
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/form_textFieldEventMemo"
+            android:textSize="18sp"
             android:layout_marginBottom="5dp"
             android:hint="@string/event_memo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
-        <com.google.android.material.textfield.TextInputEditText
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="210dp">
+        <TextView
             android:id="@+id/form_textFieldEventStart"
-            android:hint="@string/event_start"
+            android:text="@string/event_start"
             android:layout_marginBottom="5dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/startDatePickerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            style="?android:spinnerStyle"
+            android:onClick="openStartDatePicker"
+            android:layout_weight="2" />
+
+        <Button
+            android:id="@+id/startTimePickerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            style="?android:spinnerStyle"
+            android:onClick="openStartTimePicker"
+            android:layout_weight="1"/>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="270dp">
+        <TextView
             android:id="@+id/form_textFieldEventEnd"
+            android:textSize="18sp"
+            android:text="@string/event_end"
             android:layout_marginBottom="5dp"
-            android:hint="@string/event_end"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+        <Button
+            android:id="@+id/endDatePickerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:onClick="openEndDatePicker"
+            style="?android:spinnerStyle"
+            android:layout_weight="2" />
+
+        <Button
+            android:id="@+id/endTimePickerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            style="?android:spinnerStyle"
+            android:onClick="openEndTimePicker"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="340dp">
+
+        <TextView
+            android:id="@+id/toggle_button_label"
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/allDayEvent"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintBaseline_toBaselineOf="@id/allDayEvent"
+            android:text="@string/all_day_event" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/allDayEvent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="400dp">
+
+        <TextView
             android:id="@+id/form_textFieldEventRepeat"
-            android:layout_marginBottom="5dp"
-            android:hint="@string/event_repeat"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:text="Repeat"
+            android:layout_weight ="3"/>
+
+        <Spinner
+            android:id="@+id/repeatEventSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:layout_weight="1" />
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
