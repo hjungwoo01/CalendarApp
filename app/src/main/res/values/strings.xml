@@ -22,4 +22,5 @@
     <string name="button_update_event">Save</string>
     <string name="new_event_text">New Event</string>
     <string name="all_day_event">All Day</string>
+    <string name="event_details">Event Details</string>
 </resources>

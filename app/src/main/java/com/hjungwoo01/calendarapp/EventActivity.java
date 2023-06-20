@@ -39,6 +39,7 @@ public class EventActivity extends AppCompatActivity {
     private Button startTimeButton;
     private Button endTimeButton;
     private Spinner repeatEventSpinner;
+    private SwitchCompat allDayEventSwitch;
     private int startYear;
     private int startMonth;
     private int startDay;
@@ -61,32 +62,35 @@ public class EventActivity extends AppCompatActivity {
         endDateButton = findViewById(R.id.endDatePickerButton);
         startTimeButton = findViewById(R.id.startTimePickerButton);
         endTimeButton = findViewById(R.id.endTimePickerButton);
+        allDayEventSwitch = findViewById(R.id.allDayEvent);
 
         initStartDatePicker();
         initEndDatePicker();
         initRepeatInterval();
         initializeComponents();
         initLocalVariables();
-        SwitchCompat allDayEventSwitch = findViewById(R.id.allDayEvent);
-
-        allDayEventSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // Handle switch state change here
-                if (isChecked) {
-                    // Switch is ON (checked), all day event selected
-                    // Perform necessary actions
-                } else {
-                    // Switch is OFF (unchecked), non-all day event selected
-                    // Perform necessary actions
-                }
-            }
-        });
 
         startDateButton.setText(getTodaysDate());
         startTimeButton.setText(getCurrentTime());
         endDateButton.setText(getTodaysDate());
         endTimeButton.setText(getCurrentTime());
+
+        allDayEventSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // Switch is ON (checked), all day event selected
+                    startTimeButton.setVisibility(View.GONE);
+                    endTimeButton.setVisibility(View.GONE);
+                    endDateButton.setVisibility(View.GONE);
+                } else {
+                    // Switch is OFF (unchecked), non-all day event selected
+                    startTimeButton.setVisibility(View.VISIBLE);
+                    endTimeButton.setVisibility(View.VISIBLE);
+                    endDateButton.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     private void initRepeatInterval() {
@@ -107,6 +111,14 @@ public class EventActivity extends AppCompatActivity {
                 repeatInterval = intervalOptions[0];
             }
         });
+    }
+    private int getRepeatPosition() {
+        for(int i = 0; i < intervalOptions.length; i++) {
+            if(intervalOptions[i].equals(getRepeatInterval())) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     private void initLocalVariables() {
@@ -180,6 +192,7 @@ public class EventActivity extends AppCompatActivity {
 
         endDatePickerDialog = new DatePickerDialog(this, /*style,*/ dateSetListener, year, month, day);
     }
+
     // Time picker
     public void openStartTimePicker(View view) {
         TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
@@ -211,10 +224,8 @@ public class EventActivity extends AppCompatActivity {
         timePickerDialog.show();
     }
 
-
     private String makeDateString(int day, int month, int year) {
-        String stringMonth = makeTwoDigit(month);
-        return stringMonth + "/" + day + "/" + year;
+        return makeTwoDigit(month) + "/" + makeTwoDigit(day) + "/" + year;
     }
 
     private String makeTwoDigit(int number) {
@@ -245,12 +256,21 @@ public class EventActivity extends AppCompatActivity {
         EventApi eventApi = retrofitService.getRetrofit().create(EventApi.class);
 
         buttonSave.setOnClickListener(view -> {
+            if(allDayEventSwitch.isChecked()) {
+                endYear = startYear;
+                endMonth = startMonth;
+                endDay = startDay;
+                startHour = 0;
+                startMinute = 0;
+                endHour = 23;
+                endMinute = 59;
+            }
+
             String eventName = String.valueOf(inputEditText.getText());
             String eventMemo = String.valueOf(inputEditEventMemo.getText());
             String eventStart = this.eventStartString();
             String eventEnd = this.eventEndString();
             String eventRepeat = getRepeatInterval();
-
 
             Event event = new Event();
             event.setEventName(eventName);

@@ -73,7 +73,7 @@ class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
             try {
                 LocalDate startDate = event.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                 LocalDate endDate = event.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                if (date.isEqual(startDate) || (date.isAfter(startDate) && date.isBefore(endDate))) {
+                if (date.isEqual(startDate) || (date.isAfter(startDate) && date.isBefore(endDate)) || date.isEqual(endDate)) {
                     return true;
                 }
             } catch (ParseException e) {
@@ -82,6 +82,22 @@ class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
         }
         return false;
     }
+
+    private LocalDate getRepeatedStartDate(LocalDate startDate, int repeatPosition) {
+        switch (repeatPosition) {
+            case 1: // Every Day
+                return startDate.plusDays(1);
+            case 2: // Every Week
+                return startDate.plusWeeks(1);
+            case 3: // Every Month
+                return startDate.plusMonths(1);
+            case 4: // Every Year
+                return startDate.plusYears(1);
+            default:
+                return startDate;
+        }
+    }
+
 
     @Override
     public int getItemCount()

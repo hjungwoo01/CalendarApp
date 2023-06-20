@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
         for (Event event : events) {
             LocalDate eventStartDate = LocalDate.parse(event.getEventStart(), DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
             LocalDate eventEndDate = LocalDate.parse(event.getEventEnd(), DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
-            if (eventStartDate.equals(date) || date.isAfter(eventStartDate) && date.isBefore(eventEndDate)) {
+            if (eventStartDate.equals(date) || date.isAfter(eventStartDate) && date.isBefore(eventEndDate) || eventEndDate.equals(date)) {
                 return event;
             }
         }
