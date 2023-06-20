@@ -71,8 +71,9 @@ class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
     private boolean hasEventOnDate(LocalDate date) {
         for (Event event : events) {
             try {
-                LocalDate eventDate = event.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                if (eventDate.equals(date)) {
+                LocalDate startDate = event.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                LocalDate endDate = event.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                if (date.isEqual(startDate) || (date.isAfter(startDate) && date.isBefore(endDate))) {
                     return true;
                 }
             } catch (ParseException e) {

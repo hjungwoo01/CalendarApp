@@ -150,8 +150,9 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
 
     private Event getClickedEvent(LocalDate date) {
         for (Event event : events) {
-            LocalDate eventDate = LocalDate.parse(event.getEventStart(), DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
-            if (eventDate.equals(date)) {
+            LocalDate eventStartDate = LocalDate.parse(event.getEventStart(), DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
+            LocalDate eventEndDate = LocalDate.parse(event.getEventEnd(), DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
+            if (eventStartDate.equals(date) || date.isAfter(eventStartDate) && date.isBefore(eventEndDate)) {
                 return event;
             }
         }
