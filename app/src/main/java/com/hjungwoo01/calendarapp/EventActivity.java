@@ -112,15 +112,6 @@ public class EventActivity extends AppCompatActivity {
             }
         });
     }
-    private int getRepeatPosition() {
-        for(int i = 0; i < intervalOptions.length; i++) {
-            if(intervalOptions[i].equals(getRepeatInterval())) {
-                return i;
-            }
-        }
-        return 0;
-    }
-
     private void initLocalVariables() {
         Calendar cal = Calendar.getInstance();
         this.startYear = cal.get(Calendar.YEAR);

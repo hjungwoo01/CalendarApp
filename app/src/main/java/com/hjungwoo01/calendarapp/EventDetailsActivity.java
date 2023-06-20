@@ -34,7 +34,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class EventDetailsActivity extends AppCompatActivity {
-
     private Event event;
     private TextInputEditText inputEditText;
     private TextInputEditText inputEditEventMemo;
@@ -77,8 +76,6 @@ public class EventDetailsActivity extends AppCompatActivity {
         initStartDatePicker();
         initEndDatePicker();
         initRepeatInterval();
-
-
 
         // Retrieve the event ID from the intent extras
         long eventId = getIntent().getLongExtra("eventId", -1);
