@@ -173,8 +173,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="18sp"
-            android:text="Repeat"
-            android:layout_weight ="3"/>
+            android:text="@string/repeat"
+            android:layout_weight ="1"/>
+
+        <Space
+            android:layout_width="8dp"
+            android:layout_height="1dp"
+            android:layout_weight ="2"/>
 
         <Spinner
             android:id="@+id/repeatEventSpinner"
@@ -182,6 +187,32 @@
             android:layout_height="wrap_content"
             android:textColor="@color/black"
             android:layout_weight="1" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/eventRepeatEndBlock"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="440dp">
+
+        <TextView
+            android:id="@+id/form_textFieldEndEventRepeat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:text="@string/end_repeat"
+            android:layout_weight ="1"/>
+
+        <Button
+            android:id="@+id/repeatEndDatePickerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            style="?android:spinnerStyle"
+            android:onClick="openRepeatEndDatePicker"
+            android:layout_weight="2"/>
     </LinearLayout>
 
     <LinearLayout

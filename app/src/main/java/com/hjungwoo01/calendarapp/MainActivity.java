@@ -1,5 +1,6 @@
 package com.hjungwoo01.calendarapp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
         Call<List<Event>> call = eventApi.getAllEvents();
         call.enqueue(new Callback<List<Event>>() {
             @Override
-            public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
+            public void onResponse(@NonNull Call<List<Event>> call, @NonNull Response<List<Event>> response) {
                 if (response.isSuccessful()) {
                     // Create a local variable to store the fetched events
                     List<Event> fetchedEvents = response.body();
@@ -96,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
             }
 
             @Override
-            public void onFailure(Call<List<Event>> call, Throwable t) {
+            public void onFailure(@NonNull Call<List<Event>> call, @NonNull Throwable t) {
                 Toast.makeText(MainActivity.this, "Failed to fetch events.", Toast.LENGTH_SHORT).show();
                 Log.e("MainActivity", "Error occurred: " + t.getMessage());
             }

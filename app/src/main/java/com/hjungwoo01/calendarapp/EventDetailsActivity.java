@@ -12,10 +12,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -39,10 +41,12 @@ public class EventDetailsActivity extends AppCompatActivity {
     private TextInputEditText inputEditEventMemo;
     private DatePickerDialog startDatePickerDialog;
     private DatePickerDialog endDatePickerDialog;
+    private DatePickerDialog repeatEndDatePickerDialog;
     private Button startDateButton;
     private Button endDateButton;
     private Button startTimeButton;
     private Button endTimeButton;
+    private Button repeatEndDateButton;
     private Spinner repeatEventSpinner;
 
     private SwitchCompat allDayEventSwitch;
@@ -56,8 +60,12 @@ public class EventDetailsActivity extends AppCompatActivity {
     private int endDay;
     private int endHour;
     private int endMinute;
+    private int repeatEndYear;
+    private int repeatEndMonth;
+    private int repeatEndDay;
+    private LinearLayout eventRepeatEndBlock;
     private String repeatInterval;
-    private String[] intervalOptions = {"Never", "Every Day", "Every Week", "Every Month", "Every Year"};
+    private final String[] intervalOptions = {"Never", "Every Day", "Every Week", "Every Month", "Every Year"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,9 +80,12 @@ public class EventDetailsActivity extends AppCompatActivity {
         startTimeButton = findViewById(R.id.startTimePickerButton);
         endTimeButton = findViewById(R.id.endTimePickerButton);
         allDayEventSwitch = findViewById(R.id.allDayEvent);
+        repeatEndDateButton = findViewById(R.id.repeatEndDatePickerButton);
+        eventRepeatEndBlock = findViewById(R.id.eventRepeatEndBlock);
 
         initStartDatePicker();
         initEndDatePicker();
+        initRepeatEndDatePicker();
         initRepeatInterval();
 
         // Retrieve the event ID from the intent extras
@@ -125,6 +136,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                     String eventStart = getEventStartString();
                     String eventEnd = getEventEndString();
                     String eventRepeat = getRepeatInterval();
+                    String eventEndRepeat = getRepeatEndString();
 
                     if(!eventName.isEmpty()) {
                         Event updatedEvent = new Event();
@@ -133,6 +145,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                         updatedEvent.setEventStart(eventStart);
                         updatedEvent.setEventEnd(eventEnd);
                         updatedEvent.setEventRepeat(eventRepeat);
+                        updatedEvent.setEventEndRepeat(eventEndRepeat);
 
                         updateEvent(eventId, updatedEvent);
                     } else {
@@ -167,7 +180,16 @@ public class EventDetailsActivity extends AppCompatActivity {
         repeatEventSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                repeatInterval = intervalOptions[position];
+                if(position != 0) {
+                    repeatInterval = intervalOptions[position];
+                    eventRepeatEndBlock.setVisibility(View.VISIBLE);
+                    if(event.getEventEndRepeat().equals("00000")) {
+                        repeatEndDateButton.setText(getStartDateString());
+                    }
+                    initRepeatEndDatePicker();
+                } else {
+                    eventRepeatEndBlock.setVisibility(View.GONE);
+                }
             }
 
             @Override
@@ -177,13 +199,8 @@ public class EventDetailsActivity extends AppCompatActivity {
         });
     }
 
-    private int getRepeatPosition() {
-        for(int i = 0; i < intervalOptions.length; i++) {
-            if(intervalOptions[i].equals(getRepeatInterval())) {
-                return i;
-            }
-        }
-        return 0;
+    private String getStartDateString() {
+        return makeTwoDigit(this.startMonth) + "/" + makeTwoDigit(this.startDay) + "/" + this.startYear;
     }
 
     // Date picker
@@ -229,6 +246,27 @@ public class EventDetailsActivity extends AppCompatActivity {
         endDatePickerDialog = new DatePickerDialog(this, /*style,*/ dateSetListener, year, month, day);
     }
 
+    private void initRepeatEndDatePicker() {
+        DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int day) {
+                month += 1;
+                repeatEndYear = year;
+                repeatEndMonth = month;
+                repeatEndDay = day;
+                String date = makeDateString(day, month, year);
+                repeatEndDateButton.setText(date);
+            }
+        };
+
+        Calendar cal = Calendar.getInstance();
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH);
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+
+        repeatEndDatePickerDialog = new DatePickerDialog(this, /*style,*/ dateSetListener, year, month, day);
+    }
+
     public void openStartDatePicker(View view) {
         startDatePickerDialog.setTitle("Select Start Date");
         startDatePickerDialog.show();
@@ -238,6 +276,12 @@ public class EventDetailsActivity extends AppCompatActivity {
         endDatePickerDialog.setTitle("Select End Date");
         endDatePickerDialog.show();
     }
+
+    public void openRepeatEndDatePicker(View view) {
+        repeatEndDatePickerDialog.setTitle("Select Repeat End Date");
+        repeatEndDatePickerDialog.show();
+    }
+
     // Time picker
     public void openStartTimePicker(View view) {
         TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
@@ -288,6 +332,11 @@ public class EventDetailsActivity extends AppCompatActivity {
         return this.endYear + "" + makeTwoDigit(this.endMonth) + "" + makeTwoDigit(this.endDay) + "" + makeTwoDigit(this.endHour) + "" + makeTwoDigit(this.endMinute);
     }
 
+    private String getRepeatEndString() {
+        return this.repeatEndYear + "" + makeTwoDigit(this.repeatEndMonth) + makeTwoDigit(this.repeatEndDay);
+    }
+
+
     public String getRepeatInterval() {
         return this.repeatInterval;
     }
@@ -324,7 +373,13 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         }
         if(event.getEventRepeat() != null) {
-            repeatEventSpinner.setSelection(getRepeatPosition());
+            repeatEventSpinner.setSelection(event.getRepeatPosition());
+            if (event.getRepeatPosition() != 0) {
+                eventRepeatEndBlock.setVisibility(View.VISIBLE);
+                if (event.getEventEndRepeat() != null) {
+                    repeatEndDateButton.setText(makeDateString(repeatEndDay, repeatEndMonth, repeatEndYear));
+                }
+            }
         }
     }
 
@@ -340,6 +395,9 @@ public class EventDetailsActivity extends AppCompatActivity {
         this.endHour = event.getEndHour();
         this.endMinute = event.getEndMinute();
         this.repeatInterval = event.getEventRepeat();
+        this.repeatEndYear = event.getRepeatEndYear();
+        this.repeatEndMonth = event.getRepeatEndMonth();
+        this.repeatEndDay = event.getRepeatEndDay();
     }
 
     private void fetchEventDetails(long eventId) {
@@ -349,7 +407,7 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         eventApi.getEvent(eventId).enqueue(new Callback<Event>() {
             @Override
-            public void onResponse(Call<Event> call, Response<Event> response) {
+            public void onResponse(@NonNull Call<Event> call, @NonNull Response<Event> response) {
                 if (response.isSuccessful()) {
                     // Event details fetched successfully
                     event = response.body();
@@ -368,7 +426,7 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<Event> call, Throwable t) {
+            public void onFailure(@NonNull Call<Event> call, @NonNull Throwable t) {
                 Toast.makeText(EventDetailsActivity.this, "Failed to fetch event details.", Toast.LENGTH_SHORT).show();
             }
         });
@@ -381,7 +439,7 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         eventApi.updateEvent(eventId, event).enqueue(new Callback<Void>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(EventDetailsActivity.this, "Update successful.", Toast.LENGTH_SHORT).show();
 
@@ -394,7 +452,7 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
                 Toast.makeText(EventDetailsActivity.this, "Update failed.", Toast.LENGTH_SHORT).show();
                 Log.e("EventDetailsActivity", "Error occurred: " + t.getMessage());
             }
@@ -421,7 +479,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         EventApi eventApi = retrofitService.getRetrofit().create(EventApi.class);
         eventApi.deleteEvent(eventId).enqueue(new Callback<Void>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(EventDetailsActivity.this, "Event deleted.", Toast.LENGTH_SHORT).show();
 
@@ -435,7 +493,7 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
                 // Handle network or unexpected errors
                 // Display an error message or retry the operation
                 Toast.makeText(EventDetailsActivity.this, "Failed to delete event.", Toast.LENGTH_SHORT).show();
@@ -447,4 +505,6 @@ public class EventDetailsActivity extends AppCompatActivity {
     public void backToMain(View view) {
         startActivity(new Intent(EventDetailsActivity.this, MainActivity.class));
     }
+
+
 }

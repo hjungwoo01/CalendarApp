@@ -10,16 +10,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.hjungwoo01.calendarapp.model.Event;
 
-import java.text.ParseException;
 import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
 class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
     private final ArrayList<LocalDate> days;
     private final OnItemListener onItemListener;
-    private List<Event> events; // List to store the events
+    private final List<Event> events; // List to store the events
     public CalendarAdapter(ArrayList<LocalDate> days, OnItemListener onItemListener, List<Event> events) {
         this.days = days;
         this.onItemListener = onItemListener;
@@ -71,12 +70,25 @@ class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
     private boolean hasEventOnDate(LocalDate date) {
         for (Event event : events) {
             try {
-                LocalDate startDate = event.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                LocalDate endDate = event.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                LocalDate startDate = event.getStartDate();
+                LocalDate endDate = event.getEndDate();
+                LocalDate repeatEndDate = event.getRepeatEndDate();
                 if (date.isEqual(startDate) || (date.isAfter(startDate) && date.isBefore(endDate)) || date.isEqual(endDate)) {
                     return true;
                 }
-            } catch (ParseException e) {
+                int repeatPosition = event.getRepeatPosition();
+                // Check if the event is a repeating event
+                if (repeatPosition != 0) {
+                    LocalDate repeatedStartDate = startDate;
+
+                    while (repeatedStartDate.isBefore(repeatEndDate)) {
+                        repeatedStartDate = getRepeatedStartDate(repeatedStartDate, repeatPosition);
+                        if (date.isEqual(repeatedStartDate)) {
+                            return true;
+                        }
+                    }
+                }
+            } catch (DateTimeParseException e) {
                 e.printStackTrace();
             }
         }

@@ -1,9 +1,9 @@
 package com.hjungwoo01.calendarapp.model;
 
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Locale;
 
 public class Event implements Serializable {
@@ -13,6 +13,8 @@ public class Event implements Serializable {
     private String eventStart; //yyyyMMddHHmm
     private String eventEnd; //yyyyMMddHHmm
     private String eventRepeat;
+    private String eventEndRepeat; //yyyyMMdd
+    private final String[] intervalOptions = {"Never", "Every Day", "Every Week", "Every Month", "Every Year"};
 
     public long getId() { return this.id; }
     public void setId(long id) { this.id = id; }
@@ -27,22 +29,32 @@ public class Event implements Serializable {
 
     public String getEventEnd() { return this.eventEnd; }
     public void setEventEnd(String eventEnd) { this.eventEnd = eventEnd; }
-
     public void setEventRepeat(String eventRepeat) { this.eventRepeat = eventRepeat; }
 
-    public Date getStartDate() throws ParseException {
+    public void setEventEndRepeat(String eventEndRepeat) { this.eventEndRepeat = eventEndRepeat; }
+    public String getEventEndRepeat() { return this.eventEndRepeat; }
+
+    public LocalDate getStartDate() throws DateTimeParseException {
         return parseDateTime(eventStart);
     }
 
-    public Date getEndDate() throws ParseException {
+    public LocalDate getEndDate() throws DateTimeParseException {
         return parseDateTime(eventEnd);
     }
 
-    private Date parseDateTime(String dateTime) throws ParseException {
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmm", Locale.getDefault());
-        return format.parse(dateTime);
+    public LocalDate getRepeatEndDate() throws DateTimeParseException {
+        return parseDate(eventEndRepeat);
     }
 
+    private LocalDate parseDate(String date) throws DateTimeParseException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd", Locale.getDefault());
+        return LocalDate.parse(date, formatter);
+    }
+
+    private LocalDate parseDateTime(String dateTime) throws DateTimeParseException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm", Locale.getDefault());
+        return LocalDate.parse(dateTime, formatter);
+    }
 
     public int getStartYear() {
         return Integer.parseInt(this.eventStart.substring(0,4));
@@ -84,6 +96,16 @@ public class Event implements Serializable {
         return Integer.parseInt(this.eventEnd.substring(10,12));
     }
 
+    public int getRepeatEndYear() {
+        return Integer.parseInt(this.eventEndRepeat.substring(0,4));
+    }
+    public int getRepeatEndMonth() {
+        return Integer.parseInt(this.eventEndRepeat.substring(4,6));
+    }
+    public int getRepeatEndDay() {
+        return Integer.parseInt(this.eventEndRepeat.substring(6,8));
+    }
+
     public String getEventMemo() {
         return this.eventMemo;
     }
@@ -93,10 +115,17 @@ public class Event implements Serializable {
     }
 
     public boolean isAllDay() {
-        if(getStartDay() == getEndDay() && getStartMonth() == getEndMonth() && getStartYear() == getEndYear()
-         && getStartHour() == 0 && getStartMinute() == 0 && getEndHour() == 23 && getEndMinute() == 59) {
-            return true;
-        }
-        return false;
+        return getStartDay() == getEndDay() && getStartMonth() == getEndMonth() && getStartYear() == getEndYear()
+                && getStartHour() == 0 && getStartMinute() == 0 && getEndHour() == 23 && getEndMinute() == 59;
     }
+
+    public int getRepeatPosition() {
+        for(int i = 0; i < intervalOptions.length; i++) {
+            if(intervalOptions[i].equals(this.eventRepeat)) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
 }
