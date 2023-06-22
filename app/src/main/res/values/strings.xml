@@ -11,6 +11,7 @@
     <string name="next"><![CDATA[>]]></string>
     <string name="add">+</string>
     <string name="MMyyyy">Jun 2023</string>
+    <string name="mmDDyyyy">June 22, 2023</string>
     <string name="sunday">SUN</string>
     <string name="monday">MON</string>
     <string name="tuesday">TUE</string>

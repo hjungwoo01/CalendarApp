@@ -71,18 +71,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_details);
-
-        inputEditText = findViewById(R.id.form_textFieldEventName);
-        inputEditEventMemo = findViewById(R.id.form_textFieldEventMemo);
-        repeatEventSpinner = findViewById(R.id.repeatEventSpinner);
-        startDateButton = findViewById(R.id.startDatePickerButton);
-        endDateButton = findViewById(R.id.endDatePickerButton);
-        startTimeButton = findViewById(R.id.startTimePickerButton);
-        endTimeButton = findViewById(R.id.endTimePickerButton);
-        allDayEventSwitch = findViewById(R.id.allDayEvent);
-        repeatEndDateButton = findViewById(R.id.repeatEndDatePickerButton);
-        eventRepeatEndBlock = findViewById(R.id.eventRepeatEndBlock);
-
+        initWidgets();
         initStartDatePicker();
         initEndDatePicker();
         initRepeatEndDatePicker();
@@ -170,6 +159,19 @@ public class EventDetailsActivity extends AppCompatActivity {
         }
     }
 
+    private void initWidgets() {
+        inputEditText = findViewById(R.id.form_textFieldEventName);
+        inputEditEventMemo = findViewById(R.id.form_textFieldEventMemo);
+        repeatEventSpinner = findViewById(R.id.repeatEventSpinner);
+        startDateButton = findViewById(R.id.startDatePickerButton);
+        endDateButton = findViewById(R.id.endDatePickerButton);
+        startTimeButton = findViewById(R.id.startTimePickerButton);
+        endTimeButton = findViewById(R.id.endTimePickerButton);
+        allDayEventSwitch = findViewById(R.id.allDayEvent);
+        repeatEndDateButton = findViewById(R.id.repeatEndDatePickerButton);
+        eventRepeatEndBlock = findViewById(R.id.eventRepeatEndBlock);
+    }
+
     private void initRepeatInterval() {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.intervalOptions, android.R.layout.simple_spinner_item);
@@ -180,9 +182,10 @@ public class EventDetailsActivity extends AppCompatActivity {
         repeatEventSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                repeatInterval = intervalOptions[position];
                 if(position != 0) {
-                    repeatInterval = intervalOptions[position];
                     eventRepeatEndBlock.setVisibility(View.VISIBLE);
+                    repeatEndDateButton.setText(makeDateString(repeatEndDay, repeatEndMonth, repeatEndYear));
                     if(event.getEventEndRepeat().equals("00000")) {
                         repeatEndDateButton.setText(getStartDateString());
                     }
@@ -443,7 +446,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     Toast.makeText(EventDetailsActivity.this, "Update successful.", Toast.LENGTH_SHORT).show();
 
-                    // Finish the activity to return to the MainActivity
+                    startActivity(new Intent(EventDetailsActivity.this, MainActivity.class));
                     finish();
                 } else {
                     Toast.makeText(EventDetailsActivity.this, "Update failed.", Toast.LENGTH_SHORT).show();

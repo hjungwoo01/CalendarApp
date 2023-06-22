@@ -18,11 +18,9 @@ import java.util.List;
 class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
     private final ArrayList<LocalDate> days;
     private final OnItemListener onItemListener;
-    private final List<Event> events; // List to store the events
     public CalendarAdapter(ArrayList<LocalDate> days, OnItemListener onItemListener, List<Event> events) {
         this.days = days;
         this.onItemListener = onItemListener;
-        this.events = events;
     }
 
     @NonNull
@@ -68,7 +66,7 @@ class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
     }
 
     private boolean hasEventOnDate(LocalDate date) {
-        for (Event event : events) {
+        for (Event event : Event.eventsList) {
             try {
                 LocalDate startDate = event.getStartDate();
                 LocalDate endDate = event.getEndDate();
@@ -79,11 +77,14 @@ class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
                 int repeatPosition = event.getRepeatPosition();
                 // Check if the event is a repeating event
                 if (repeatPosition != 0) {
-                    LocalDate repeatedStartDate = startDate;
+                    LocalDate repeatStartDate = startDate;
+                    LocalDate repeatIntervalEndDate = endDate;
 
-                    while (repeatedStartDate.isBefore(repeatEndDate)) {
-                        repeatedStartDate = getRepeatedStartDate(repeatedStartDate, repeatPosition);
-                        if (date.isEqual(repeatedStartDate)) {
+                    while (repeatStartDate.isBefore(repeatEndDate)) {
+                        repeatStartDate = getRepeatedStartDate(repeatStartDate, repeatPosition);
+                        repeatIntervalEndDate = getRepeatedStartDate(repeatIntervalEndDate, repeatPosition);
+                        if (date.isEqual(repeatStartDate) || date.isEqual(repeatIntervalEndDate) ||
+                                (date.isAfter(repeatStartDate) && date.isBefore(repeatIntervalEndDate))) {
                             return true;
                         }
                     }

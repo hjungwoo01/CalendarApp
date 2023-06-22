@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class Event implements Serializable {
@@ -15,6 +17,18 @@ public class Event implements Serializable {
     private String eventRepeat;
     private String eventEndRepeat; //yyyyMMdd
     private final String[] intervalOptions = {"Never", "Every Day", "Every Week", "Every Month", "Every Year"};
+    public static List<Event> eventsList = new ArrayList<>();
+
+    public static ArrayList<Event> eventsForDate(LocalDate selectedDate) {
+        ArrayList<Event> events = new ArrayList<>();
+        for(Event e : eventsList) {
+            if(e.getStartDate().equals(selectedDate) || (selectedDate.isAfter(e.getStartDate()) &&
+                    selectedDate.isBefore(e.getEndDate())) || selectedDate.isEqual(e.getEndDate())) {
+                events.add(e);
+            }
+        }
+        return events;
+    }
 
     public long getId() { return this.id; }
     public void setId(long id) { this.id = id; }
