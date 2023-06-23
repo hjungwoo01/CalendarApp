@@ -37,7 +37,7 @@ import retrofit2.Response;
 
 public class EventDetailsActivity extends AppCompatActivity {
     private Event event;
-    private TextInputEditText inputEditText;
+    private TextInputEditText inputEditEventName;
     private TextInputEditText inputEditEventMemo;
     private DatePickerDialog startDatePickerDialog;
     private DatePickerDialog endDatePickerDialog;
@@ -48,7 +48,6 @@ public class EventDetailsActivity extends AppCompatActivity {
     private Button endTimeButton;
     private Button repeatEndDateButton;
     private Spinner repeatEventSpinner;
-
     private SwitchCompat allDayEventSwitch;
     private int startYear;
     private int startMonth;
@@ -120,7 +119,8 @@ public class EventDetailsActivity extends AppCompatActivity {
                         endHour = 23;
                         endMinute = 59;
                     }
-                    String eventName = String.valueOf(inputEditText.getText());
+
+                    String eventName = String.valueOf(inputEditEventName.getText());
                     String eventMemo = String.valueOf(inputEditEventMemo.getText());
                     String eventStart = getEventStartString();
                     String eventEnd = getEventEndString();
@@ -129,6 +129,7 @@ public class EventDetailsActivity extends AppCompatActivity {
 
                     if(!eventName.isEmpty()) {
                         Event updatedEvent = new Event();
+                        updatedEvent.setOwner(OwnerSelectionActivity.getSelectedOwner());
                         updatedEvent.setEventName(eventName);
                         updatedEvent.setEventMemo(eventMemo);
                         updatedEvent.setEventStart(eventStart);
@@ -160,7 +161,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     private void initWidgets() {
-        inputEditText = findViewById(R.id.form_textFieldEventName);
+        inputEditEventName = findViewById(R.id.form_textFieldEventName);
         inputEditEventMemo = findViewById(R.id.form_textFieldEventMemo);
         repeatEventSpinner = findViewById(R.id.repeatEventSpinner);
         startDateButton = findViewById(R.id.startDatePickerButton);
@@ -346,9 +347,8 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     private void displayEventDetails() {
         setLocalVariables(this.event);
-
         if(event.getEventName() != null) {
-            inputEditText.setText(event.getEventName());
+            inputEditEventName.setText(event.getEventName());
         }
         if(event.getEventMemo() != null) {
             inputEditEventMemo.setText(event.getEventMemo());
@@ -436,7 +436,6 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     private void updateEvent(long eventId, Event event) {
-        // Update the existing event using the PUT method
         RetrofitService retrofitService = new RetrofitService();
         EventApi eventApi = retrofitService.getRetrofit().create(EventApi.class);
 
@@ -450,7 +449,6 @@ public class EventDetailsActivity extends AppCompatActivity {
                     finish();
                 } else {
                     Toast.makeText(EventDetailsActivity.this, "Update failed.", Toast.LENGTH_SHORT).show();
-                    // Handle failed response
                 }
             }
 
@@ -486,7 +484,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     Toast.makeText(EventDetailsActivity.this, "Event deleted.", Toast.LENGTH_SHORT).show();
 
-                    // Finish the activity to return to the MainActivity
+                    startActivity(new Intent(EventDetailsActivity.this, MainActivity.class));
                     finish();
                 } else {
                     // Handle API error

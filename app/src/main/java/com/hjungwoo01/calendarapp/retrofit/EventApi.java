@@ -16,6 +16,8 @@ public interface EventApi {
     @GET("/db_calendar/scheduler/get-all")
     Call<List<Event>> getAllEvents();
 
+    @GET("/db_calendar/scheduler/get-by-owner/{owner}")
+    Call<List<Event>> getEventsByOwner(@Path("owner") String owner);
     @GET("/db_calendar/scheduler/get/{id}")
     Call<Event> getEvent(@Path("id") long id);
 

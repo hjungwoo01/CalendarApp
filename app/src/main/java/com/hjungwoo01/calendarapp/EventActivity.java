@@ -288,7 +288,7 @@ public class EventActivity extends AppCompatActivity {
     }
 
     private void initializeComponents() {
-        TextInputEditText inputEditText = findViewById(R.id.form_textFieldEventName);
+        TextInputEditText inputEditEventName = findViewById(R.id.form_textFieldEventName);
         TextInputEditText inputEditEventMemo = findViewById(R.id.form_textFieldEventMemo);
         MaterialButton buttonSave = findViewById(R.id.form_buttonSave);
 
@@ -306,7 +306,7 @@ public class EventActivity extends AppCompatActivity {
                 endMinute = 59;
             }
 
-            String eventName = String.valueOf(inputEditText.getText());
+            String eventName = String.valueOf(inputEditEventName.getText());
             String eventMemo = String.valueOf(inputEditEventMemo.getText());
             String eventStart = this.eventStartString();
             String eventEnd = this.eventEndString();
@@ -324,6 +324,7 @@ public class EventActivity extends AppCompatActivity {
             }
 
             Event event = new Event();
+            event.setOwner(OwnerSelectionActivity.getSelectedOwner());
             event.setEventName(eventName);
             event.setEventMemo(eventMemo);
             event.setEventStart(eventStart);

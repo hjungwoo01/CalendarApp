@@ -9,16 +9,17 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.hjungwoo01.calendarapp.model.Event;
+import com.hjungwoo01.calendarapp.model.RepeatedEvents;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
+public class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
     private final ArrayList<LocalDate> days;
     private final OnItemListener onItemListener;
-    public CalendarAdapter(ArrayList<LocalDate> days, OnItemListener onItemListener, List<Event> events) {
+    public CalendarAdapter(ArrayList<LocalDate> days, OnItemListener onItemListener) {
         this.days = days;
         this.onItemListener = onItemListener;
     }
@@ -32,7 +33,7 @@ class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
         if(days.size() > 15) //month view
             layoutParams.height = (int) (parent.getHeight() * 0.166666666);
         else // week view
-            layoutParams.height = (int) parent.getHeight();
+            layoutParams.height = parent.getHeight();
 
         return new CalendarViewHolder(view, onItemListener, days);
     }
@@ -70,47 +71,33 @@ class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
             try {
                 LocalDate startDate = event.getStartDate();
                 LocalDate endDate = event.getEndDate();
-                LocalDate repeatEndDate = event.getRepeatEndDate();
-                if (date.isEqual(startDate) || (date.isAfter(startDate) && date.isBefore(endDate)) || date.isEqual(endDate)) {
+
+                // Check if the date matches the original event
+                if ((date.isEqual(startDate) || date.isAfter(startDate)) && date.isBefore(endDate.plusDays(1))) {
                     return true;
                 }
-                int repeatPosition = event.getRepeatPosition();
-                // Check if the event is a repeating event
-                if (repeatPosition != 0) {
-                    LocalDate repeatStartDate = startDate;
-                    LocalDate repeatIntervalEndDate = endDate;
 
-                    while (repeatStartDate.isBefore(repeatEndDate)) {
-                        repeatStartDate = getRepeatedStartDate(repeatStartDate, repeatPosition);
-                        repeatIntervalEndDate = getRepeatedStartDate(repeatIntervalEndDate, repeatPosition);
-                        if (date.isEqual(repeatStartDate) || date.isEqual(repeatIntervalEndDate) ||
-                                (date.isAfter(repeatStartDate) && date.isBefore(repeatIntervalEndDate))) {
+                // Check if the event is a repeating event
+                int repeatPosition = event.getRepeatPosition();
+                if(repeatPosition != 0) {
+                    RepeatedEvents repeatedEvents = new RepeatedEvents(event);
+                    List<Event> recurringEvents = repeatedEvents.getRecurringEvents();
+
+                    // Check if the date matches any recurring event's repetition
+                    for (Event recurringEvent : recurringEvents) {
+                        if ((date.isEqual(recurringEvent.getStartDate()) || date.isAfter(recurringEvent.getStartDate())) &&
+                                date.isBefore(recurringEvent.getEndDate().plusDays(1))) {
                             return true;
                         }
                     }
                 }
+
             } catch (DateTimeParseException e) {
                 e.printStackTrace();
             }
         }
         return false;
     }
-
-    private LocalDate getRepeatedStartDate(LocalDate startDate, int repeatPosition) {
-        switch (repeatPosition) {
-            case 1: // Every Day
-                return startDate.plusDays(1);
-            case 2: // Every Week
-                return startDate.plusWeeks(1);
-            case 3: // Every Month
-                return startDate.plusMonths(1);
-            case 4: // Every Year
-                return startDate.plusYears(1);
-            default:
-                return startDate;
-        }
-    }
-
 
     @Override
     public int getItemCount()

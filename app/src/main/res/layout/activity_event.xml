@@ -74,7 +74,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="210dp">
+        android:layout_marginTop="240dp">
         <TextView
             android:id="@+id/form_textFieldEventStart"
             android:text="@string/event_start"
@@ -109,7 +109,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="270dp">
+        android:layout_marginTop="300dp">
         <TextView
             android:id="@+id/form_textFieldEventEnd"
             android:textSize="18sp"
@@ -141,7 +141,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="340dp">
+        android:layout_marginTop="370dp">
 
         <TextView
             android:id="@+id/toggle_button_label"
@@ -167,7 +167,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="400dp">
+        android:layout_marginTop="430dp">
 
         <TextView
             android:id="@+id/form_textFieldEventRepeat"
@@ -195,7 +195,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="440dp"
+        android:layout_marginTop="470dp"
         android:visibility="gone">
 
         <TextView

@@ -7,9 +7,11 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class Event implements Serializable {
     private long id;
+    private String owner;
     private String eventName;
     private String eventMemo;
     private String eventStart; //yyyyMMddHHmm
@@ -19,11 +21,24 @@ public class Event implements Serializable {
     private final String[] intervalOptions = {"Never", "Every Day", "Every Week", "Every Month", "Every Year"};
     public static List<Event> eventsList = new ArrayList<>();
 
+
+    public Event(String eventName, String eventMemo, String eventStart, String eventEnd, String eventRepeat, String eventEndRepeat) {
+        this.eventName = eventName;
+        this.eventMemo = eventMemo;
+        this.eventStart = eventStart;
+        this.eventEnd = eventEnd;
+        this.eventRepeat = eventRepeat;
+        this.eventEndRepeat = eventEndRepeat;
+    }
+
+    public Event() {
+    }
+
     public static ArrayList<Event> eventsForDate(LocalDate selectedDate) {
         ArrayList<Event> events = new ArrayList<>();
         for(Event e : eventsList) {
-            if(e.getStartDate().equals(selectedDate) || (selectedDate.isAfter(e.getStartDate()) &&
-                    selectedDate.isBefore(e.getEndDate())) || selectedDate.isEqual(e.getEndDate())) {
+            if (e.getStartDate().equals(selectedDate) || (selectedDate.isAfter(e.getStartDate()) &&
+                    selectedDate.isBefore(e.getEndDate().plusDays(1)))) {
                 events.add(e);
             }
         }
@@ -32,6 +47,10 @@ public class Event implements Serializable {
 
     public long getId() { return this.id; }
     public void setId(long id) { this.id = id; }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
 
     public String getEventName() { return this.eventName; }
     public void setEventName(String eventName) { this.eventName = eventName; }
@@ -141,5 +160,42 @@ public class Event implements Serializable {
         }
         return 0;
     }
+    private String makeTwoDigit(int number) {
+        if(number < 10) {
+            return "0" + number;
+        }
+        return number + "";
+    }
+    public String getStartTime() {
+        return makeTwoDigit(this.getStartHour()) + makeTwoDigit(this.getStartMinute());
+    }
+
+    public String getEndTime() {
+        return makeTwoDigit(this.getEndHour()) + makeTwoDigit(this.getEndMinute());
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Objects.hash(eventName, eventMemo, eventStart, eventEnd, eventRepeat, eventEndRepeat);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        Event other = (Event) obj;
+        return Objects.equals(eventName, other.eventName) &&
+                Objects.equals(eventMemo, other.eventMemo) &&
+                Objects.equals(eventStart, other.eventStart) &&
+                Objects.equals(eventEnd, other.eventEnd) &&
+                Objects.equals(eventRepeat, other.eventRepeat) &&
+                Objects.equals(eventEndRepeat, other.eventEndRepeat);
+    }
+
 
 }

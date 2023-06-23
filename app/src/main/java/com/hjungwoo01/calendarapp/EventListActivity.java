@@ -1,5 +1,7 @@
 package com.hjungwoo01.calendarapp;
 
+import static com.hjungwoo01.calendarapp.model.RepeatedEvents.repeatedEventsMap;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -10,19 +12,24 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.hjungwoo01.calendarapp.model.Event;
+import com.hjungwoo01.calendarapp.model.RepeatedEvents;
+
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public class EventListActivity extends AppCompatActivity {
     private ListView eventListView;
     private TextView eventsOnDate;
-    private List<Event> events = Event.eventsForDate(CalendarUtils.selectedDate);
+    private List<Event> events;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_list);
         initWidgets();
+        events = Event.eventsForDate(CalendarUtils.selectedDate);
+        events.addAll(RepeatedEvents.repeatedEventsForDate(CalendarUtils.selectedDate));
         fetchEventList();
     }
 
@@ -63,7 +70,7 @@ public class EventListActivity extends AppCompatActivity {
 
     private void showEventDetails(Event event) {
         Intent intent = new Intent(EventListActivity.this, EventDetailsActivity.class);
-        intent.putExtra("eventId", event.getId());
+        intent.putExtra("eventId", Objects.requireNonNull(repeatedEventsMap.getOrDefault(event, event)).getId());
         startActivity(intent);
     }
 

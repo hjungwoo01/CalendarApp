@@ -133,6 +133,18 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="changeOwner"
+            android:text="@string/change_owner"
+            android:textColor="@color/black"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:layout_marginStart="15dp"
+            android:backgroundTint="@color/primary"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:onClick="newEventAction"
             android:text="@string/add"
