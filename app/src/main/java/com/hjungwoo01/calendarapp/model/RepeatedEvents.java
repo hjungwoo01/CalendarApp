@@ -3,22 +3,22 @@ package com.hjungwoo01.calendarapp.model;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RepeatedEvents {
-    private final Event originalEvent;
+    private final Event baseEvent;
 
-    public static Map<Event, Event> repeatedEventsMap = new HashMap<>();
+    public static Map<Event, Event> repeatedEventsMap = new ConcurrentHashMap<>();
 
-    public RepeatedEvents(Event originalEvent) {
-        this.originalEvent = originalEvent;
+    public RepeatedEvents(Event baseEvent) {
+        this.baseEvent = baseEvent;
     }
 
-    public static ArrayList<Event> repeatedEventsForDate(LocalDate selectedDate) {
-        ArrayList<Event> events = new ArrayList<>();
-        for(Event e : repeatedEventsMap.keySet()) {
+    public static List<Event> repeatedEventsForDate(LocalDate selectedDate) {
+        List<Event> events = new ArrayList<>();
+        for (Event e : repeatedEventsMap.keySet()) {
             if (e.getStartDate().equals(selectedDate) || (selectedDate.isAfter(e.getStartDate()) &&
                     selectedDate.isBefore(e.getEndDate().plusDays(1)))) {
                 events.add(e);
@@ -29,37 +29,47 @@ public class RepeatedEvents {
 
     public List<Event> getRecurringEvents() {
         List<Event> recurringEvents = new ArrayList<>();
-        int repeatPosition = originalEvent.getRepeatPosition();
-        LocalDate startDate = getRepeatedStartDate(originalEvent.getStartDate(), repeatPosition);
-        LocalDate endDate = getRepeatedStartDate(originalEvent.getEndDate(), repeatPosition);
-        LocalDate repeatEndDate = originalEvent.getRepeatEndDate();
+        int repeatPosition = baseEvent.getRepeatPosition();
+        LocalDate startDate = getRepeatedDate(baseEvent.getStartDate(), repeatPosition);
+        LocalDate endDate = getRepeatedDate(baseEvent.getEndDate(), repeatPosition);
+        LocalDate repeatEndDate = baseEvent.getRepeatEndDate();
 
         while (startDate.isBefore(repeatEndDate)) {
-            Event recurringEvent = new Event(originalEvent.getEventName(), originalEvent.getEventMemo(), startDate.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + originalEvent.getStartTime(),
-                    endDate.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + originalEvent.getEndTime(), originalEvent.getEventRepeat(), originalEvent.getEventEndRepeat());
+            Event recurringEvent = new Event(
+                    baseEvent.getEventName(),
+                    baseEvent.getEventMemo(),
+                    formatDateAndTime(startDate, baseEvent.getStartTime()),
+                    formatDateAndTime(endDate, baseEvent.getEndTime()),
+                    baseEvent.getEventRepeat(),
+                    baseEvent.getEventEndRepeat()
+            );
             recurringEvents.add(recurringEvent);
-            if(!repeatedEventsMap.containsKey(recurringEvent)) {
-                repeatedEventsMap.put(recurringEvent, originalEvent);
+            if (!repeatedEventsMap.containsKey(recurringEvent)) {
+                repeatedEventsMap.put(recurringEvent, baseEvent);
             }
 
-            startDate = getRepeatedStartDate(startDate, repeatPosition);
-            endDate = getRepeatedStartDate(endDate, repeatPosition);
+            startDate = getRepeatedDate(startDate, repeatPosition);
+            endDate = getRepeatedDate(endDate, repeatPosition);
         }
         return recurringEvents;
     }
 
-    private LocalDate getRepeatedStartDate(LocalDate startDate, int repeatPosition) {
+    private LocalDate getRepeatedDate(LocalDate date, int repeatPosition) {
         switch (repeatPosition) {
             case 1: // Every Day
-                return startDate.plusDays(1);
+                return date.plusDays(1);
             case 2: // Every Week
-                return startDate.plusWeeks(1);
+                return date.plusWeeks(1);
             case 3: // Every Month
-                return startDate.plusMonths(1);
+                return date.plusMonths(1);
             case 4: // Every Year
-                return startDate.plusYears(1);
+                return date.plusYears(1);
             default:
-                return startDate;
+                return date;
         }
+    }
+
+    private String formatDateAndTime(LocalDate date, String time) {
+        return date.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + time;
     }
 }

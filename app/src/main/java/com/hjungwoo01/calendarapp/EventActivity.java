@@ -180,7 +180,7 @@ public class EventActivity extends AppCompatActivity {
         int month = cal.get(Calendar.MONTH);
         int day = cal.get(Calendar.DAY_OF_MONTH);
 
-        startDatePickerDialog = new DatePickerDialog(this, /*style,*/ dateSetListener, year, month, day);
+        startDatePickerDialog = new DatePickerDialog(this, /* style, */ dateSetListener, year, month, day);
     }
 
     private void initEndDatePicker() {
@@ -201,7 +201,7 @@ public class EventActivity extends AppCompatActivity {
         int month = cal.get(Calendar.MONTH);
         int day = cal.get(Calendar.DAY_OF_MONTH);
 
-        endDatePickerDialog = new DatePickerDialog(this, /*style,*/ dateSetListener, year, month, day);
+        endDatePickerDialog = new DatePickerDialog(this, /* style, */ dateSetListener, year, month, day);
     }
 
     private void initRepeatEndDatePicker() {
@@ -222,7 +222,7 @@ public class EventActivity extends AppCompatActivity {
         int month = cal.get(Calendar.MONTH);
         int day = cal.get(Calendar.DAY_OF_MONTH);
 
-        repeatEndDatePickerDialog = new DatePickerDialog(this, /*style,*/ dateSetListener, year, month, day);
+        repeatEndDatePickerDialog = new DatePickerDialog(this, /* style, */ dateSetListener, year, month, day);
     }
 
     // Time picker
@@ -235,7 +235,7 @@ public class EventActivity extends AppCompatActivity {
                 startTimeButton.setText(String.format(Locale.getDefault(), "%02d:%02d",startHour, startMinute));
             }
         };
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this, /*style,*/ onTimeSetListener, startHour, startMinute, true);
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, /* style, */ onTimeSetListener, startHour, startMinute, true);
 
         timePickerDialog.setTitle("Select Start Time");
         timePickerDialog.show();
@@ -250,7 +250,7 @@ public class EventActivity extends AppCompatActivity {
                 endTimeButton.setText(String.format(Locale.getDefault(), "%02d:%02d",endHour, endMinute));
             }
         };
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this, /*style,*/ onTimeSetListener, endHour, endMinute, true);
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, /* style, */ onTimeSetListener, endHour, endMinute, true);
 
         timePickerDialog.setTitle("Select End Time");
         timePickerDialog.show();

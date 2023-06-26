@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh the calendar view when the activity is resumed
         fetchEvents();
     }
 
@@ -70,8 +69,6 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
     }
 
     private void fetchEvents() {
-        // Make an API call or retrieve events from the database
-        // Update the 'events' list with the fetched events
         RetrofitService retrofitService = new RetrofitService();
         EventApi eventApi = retrofitService.getRetrofit().create(EventApi.class);
 
@@ -80,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
             @Override
             public void onResponse(@NonNull Call<List<Event>> call, @NonNull Response<List<Event>> response) {
                 if (response.isSuccessful()) {
-                    // Create a local variable to store the fetched events
                     Event.eventsList = response.body();
                     setMonthView();
                 } else {
@@ -115,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
             CalendarUtils.selectedDate = date;
             setMonthView();
 
-            // Retrieve the clicked event from the events list
             Event clickedEvent = getClickedEvent(date);
 
             if (clickedEvent != null) {
@@ -123,16 +118,13 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
                         RepeatedEvents.repeatedEventsForDate(CalendarUtils.selectedDate).size() > 1) {
                     startActivity(new Intent(MainActivity.this, EventListActivity.class));
                 } else {
-                    // Retrieve the event ID from the clicked event
                     long eventId = Objects.requireNonNull(repeatedEventsMap.getOrDefault(clickedEvent, clickedEvent)).getId();
 
-                    // Open the EventDetailsActivity and pass the event ID
                     Intent intent = new Intent(MainActivity.this, EventDetailsActivity.class);
                     intent.putExtra("eventId", eventId);
                     startActivity(intent);
                 }
             } else {
-                // Show a message that there is no event on the clicked date
                 Toast.makeText(MainActivity.this, "No event on this date", Toast.LENGTH_SHORT).show();
             }
         }

@@ -76,11 +76,10 @@ public class EventDetailsActivity extends AppCompatActivity {
         initRepeatEndDatePicker();
         initRepeatInterval();
 
-        // Retrieve the event ID from the intent extras
+
         long eventId = getIntent().getLongExtra("eventId", -1);
 
         if (eventId != -1) {
-            // Fetch the event details from the API
             fetchEventDetails(eventId);
 
             allDayEventSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -139,13 +138,11 @@ public class EventDetailsActivity extends AppCompatActivity {
 
                         updateEvent(eventId, updatedEvent);
                     } else {
-                        // Show validation error message
                         Toast.makeText(EventDetailsActivity.this, "Invalid input. Please check your inputs and try again.", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
 
-            // Handle the delete button click
             MaterialButton deleteButton = findViewById(R.id.form_buttonDelete);
             deleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -154,7 +151,6 @@ public class EventDetailsActivity extends AppCompatActivity {
                 }
             });
         } else {
-            // Handle the case when the event ID is not provided
             Toast.makeText(this, "Event ID not found", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -226,7 +222,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         int month = cal.get(Calendar.MONTH);
         int day = cal.get(Calendar.DAY_OF_MONTH);
 
-        startDatePickerDialog = new DatePickerDialog(this, /*style,*/ dateSetListener, year, month, day);
+        startDatePickerDialog = new DatePickerDialog(this, /* style, */ dateSetListener, year, month, day);
     }
 
     private void initEndDatePicker() {
@@ -247,7 +243,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         int month = cal.get(Calendar.MONTH);
         int day = cal.get(Calendar.DAY_OF_MONTH);
 
-        endDatePickerDialog = new DatePickerDialog(this, /*style,*/ dateSetListener, year, month, day);
+        endDatePickerDialog = new DatePickerDialog(this, /* style, */ dateSetListener, year, month, day);
     }
 
     private void initRepeatEndDatePicker() {
@@ -268,7 +264,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         int month = cal.get(Calendar.MONTH);
         int day = cal.get(Calendar.DAY_OF_MONTH);
 
-        repeatEndDatePickerDialog = new DatePickerDialog(this, /*style,*/ dateSetListener, year, month, day);
+        repeatEndDatePickerDialog = new DatePickerDialog(this, /* style, */ dateSetListener, year, month, day);
     }
 
     public void openStartDatePicker(View view) {
@@ -296,7 +292,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                 startTimeButton.setText(String.format(Locale.getDefault(), "%02d:%02d",startHour, startMinute));
             }
         };
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this, /*style,*/ onTimeSetListener, startHour, startMinute, true);
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, /* style, */ onTimeSetListener, startHour, startMinute, true);
 
         timePickerDialog.setTitle("Select Start Time");
         timePickerDialog.show();
@@ -311,7 +307,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                 endTimeButton.setText(String.format(Locale.getDefault(), "%02d:%02d",endHour, endMinute));
             }
         };
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this, /*style,*/ onTimeSetListener, endHour, endMinute, true);
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, /* style, */ onTimeSetListener, endHour, endMinute, true);
 
         timePickerDialog.setTitle("Select End Time");
         timePickerDialog.show();
@@ -339,7 +335,6 @@ public class EventDetailsActivity extends AppCompatActivity {
     private String getRepeatEndString() {
         return this.repeatEndYear + "" + makeTwoDigit(this.repeatEndMonth) + makeTwoDigit(this.repeatEndDay);
     }
-
 
     public String getRepeatInterval() {
         return this.repeatInterval;
@@ -404,7 +399,6 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     private void fetchEventDetails(long eventId) {
-        // Call the API to fetch the event details by ID
         RetrofitService retrofitService = new RetrofitService();
         EventApi eventApi = retrofitService.getRetrofit().create(EventApi.class);
 
@@ -412,14 +406,11 @@ public class EventDetailsActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call<Event> call, @NonNull Response<Event> response) {
                 if (response.isSuccessful()) {
-                    // Event details fetched successfully
                     event = response.body();
-                    // Check if the event is not null
+
                     if (event != null) {
-                        // Display the event details in your views
                         displayEventDetails();
                     } else {
-                        // Handle the case when the event is null
                         Toast.makeText(EventDetailsActivity.this, "Event not found", Toast.LENGTH_SHORT).show();
                         finish();
                     }
@@ -475,7 +466,6 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     private void deleteEvent(long eventId) {
-        // Call the deleteEvent API method with the event id
         RetrofitService retrofitService = new RetrofitService();
         EventApi eventApi = retrofitService.getRetrofit().create(EventApi.class);
         eventApi.deleteEvent(eventId).enqueue(new Callback<Void>() {
@@ -487,16 +477,12 @@ public class EventDetailsActivity extends AppCompatActivity {
                     startActivity(new Intent(EventDetailsActivity.this, MainActivity.class));
                     finish();
                 } else {
-                    // Handle API error
-                    // Display an error message or retry the operation
                     Toast.makeText(EventDetailsActivity.this, "Failed to delete event.", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
-                // Handle network or unexpected errors
-                // Display an error message or retry the operation
                 Toast.makeText(EventDetailsActivity.this, "Failed to delete event.", Toast.LENGTH_SHORT).show();
                 Log.e("EventDetailsActivity", "Error occurred: " + t.getMessage());
             }

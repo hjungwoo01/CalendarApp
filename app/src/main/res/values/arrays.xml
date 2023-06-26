@@ -14,4 +14,8 @@
         <item>Person4</item>
         <item>Person5</item>
     </string-array>
+    <string-array name="activities">
+        <item>Scheduler</item>
+        <item>Memo</item>
+    </string-array>
 </resources>

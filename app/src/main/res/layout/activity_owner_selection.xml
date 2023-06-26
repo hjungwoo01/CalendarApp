@@ -9,17 +9,25 @@
         android:id="@+id/owner_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
         android:entries="@array/owners"
-        tools:ignore="HardcodedText" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"/>
+
+    <Spinner
+        android:id="@+id/activity_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:layout_centerHorizontal="true"
+        android:entries="@array/activities" />
 
     <Button
-        android:id="@+id/select_owner_button"
+        android:id="@+id/select_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/owner_spinner"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:text="@string/select_owner" />
+        android:layout_marginTop="120dp"
+        android:text="Select" />
 
 </RelativeLayout>

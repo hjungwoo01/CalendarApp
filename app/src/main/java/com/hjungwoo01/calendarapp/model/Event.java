@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -19,7 +20,7 @@ public class Event implements Serializable {
     private String eventRepeat;
     private String eventEndRepeat; //yyyyMMdd
     private final String[] intervalOptions = {"Never", "Every Day", "Every Week", "Every Month", "Every Year"};
-    public static List<Event> eventsList = new ArrayList<>();
+    public static List<Event> eventsList = Collections.emptyList();
 
 
     public Event(String eventName, String eventMemo, String eventStart, String eventEnd, String eventRepeat, String eventEndRepeat) {
@@ -34,7 +35,7 @@ public class Event implements Serializable {
     public Event() {
     }
 
-    public static ArrayList<Event> eventsForDate(LocalDate selectedDate) {
+    public static List<Event> eventsForDate(LocalDate selectedDate) {
         ArrayList<Event> events = new ArrayList<>();
         for(Event e : eventsList) {
             if (e.getStartDate().equals(selectedDate) || (selectedDate.isAfter(e.getStartDate()) &&
