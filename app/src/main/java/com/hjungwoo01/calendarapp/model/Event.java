@@ -162,10 +162,7 @@ public class Event implements Serializable {
         return 0;
     }
     private String makeTwoDigit(int number) {
-        if(number < 10) {
-            return "0" + number;
-        }
-        return number + "";
+        return String.format(Locale.KOREA, "%02d", number);
     }
     public String getStartTime() {
         return makeTwoDigit(this.getStartHour()) + makeTwoDigit(this.getStartMinute());

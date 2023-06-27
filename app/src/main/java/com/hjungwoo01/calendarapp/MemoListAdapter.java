@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import com.hjungwoo01.calendarapp.model.Memo;
 
 import java.util.List;
+import java.util.Locale;
 
 public class MemoListAdapter extends ArrayAdapter<Memo> {
     public MemoListAdapter(@NonNull Context context, List<Memo> memos) {
@@ -40,9 +41,6 @@ public class MemoListAdapter extends ArrayAdapter<Memo> {
     }
 
     private String makeTwoDigit(int number) {
-        if(number < 10) {
-            return "0" + number;
-        }
-        return number + "";
+        return String.format(Locale.KOREA,"%02d", number);
     }
 }

@@ -318,10 +318,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     private String makeTwoDigit(int number) {
-        if(number < 10) {
-            return "0" + number;
-        }
-        return number + "";
+        return String.format(Locale.KOREA, "%02d", number);
     }
 
     private String getEventStartString() {

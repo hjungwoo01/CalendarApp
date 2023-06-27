@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:padding="25dp"
     tools:context=".NewMemoActivity">
 
@@ -11,7 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_gravity="top"
         android:layout_marginTop="20dp"
         android:background="@color/primary">
 
@@ -45,45 +44,53 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="80dp">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/form_textFieldReceiver"
-            android:textSize="18sp"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:hint="Receiver" />
+            android:orientation="vertical"
+            android:layout_marginTop="16dp">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/form_textFieldMemoName"
-            android:textSize="18sp"
-            android:layout_marginBottom="5dp"
-            android:hint="Memo Name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/form_receiversTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="@android:drawable/editbox_background"
+                android:drawableRight="@android:drawable/arrow_down_float"
+                android:drawablePadding="18dp"
+                android:hint="Send Memo To: "
+                android:padding="12dp" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/form_textFieldMemo"
-            android:textSize="18sp"
-            android:layout_marginBottom="5dp"
-            android:hint="Memo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/form_textFieldMemoName"
+                android:textSize="18sp"
+                android:layout_marginBottom="5dp"
+                android:hint="Memo Name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
-    </LinearLayout>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/form_textFieldMemo"
+                android:textSize="18sp"
+                android:layout_marginBottom="5dp"
+                android:hint="Memo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+    </ScrollView>
 
 
     <LinearLayout
         android:id="@+id/buttonLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_alignParentBottom="true">
+        android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/form_buttonSave"
@@ -95,4 +102,4 @@
             android:layout_weight="1"/>
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>
