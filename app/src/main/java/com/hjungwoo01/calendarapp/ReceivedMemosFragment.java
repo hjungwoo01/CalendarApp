@@ -37,6 +37,13 @@ public class ReceivedMemosFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_received_memos, container, false);
         initWidgets();
+        fetchMemos();
+        receivedMemoAdapter.setOnItemClickListener(new MemoRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Memo memo) {
+                showMemoDetails(memo);
+            }
+        });
         return view;
     }
     private void initWidgets() {
@@ -49,10 +56,40 @@ public class ReceivedMemosFragment extends Fragment {
         receivedMemosRecyclerView.setAdapter(receivedMemoAdapter);
     }
 
+    private void fetchMemos() {
+        RetrofitService retrofitService = new RetrofitService();
+        MemoApi memoApi = retrofitService.getRetrofit().create(MemoApi.class);
+
+        Call<List<Memo>> call = memoApi.getMemosByReceiver(OwnerSelectionActivity.getSelectedOwner());
+
+        call.enqueue(new Callback<List<Memo>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<Memo>> call, @NonNull Response<List<Memo>> response) {
+                if (response.isSuccessful()) {
+                    List<Memo> newMemoList = response.body();
+                    if (newMemoList != null) {
+                        receivedMemoList.clear();
+                        receivedMemoList.addAll(sortMemos(newMemoList));
+                        receivedMemoAdapter.notifyDataSetChanged();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "No memos.", Toast.LENGTH_SHORT).show();
+                    receivedMemoList.clear();
+                    receivedMemoAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Memo>> call, Throwable t) {
+
+            }
+        });
+    }
+
     private List<Memo> sortMemos(List<Memo> memos) {
         memos.sort(new Comparator<Memo>() {
             @Override
-            public int compare(Memo m1, Memo m2) {
+            public int compare(Memo m2, Memo m1) {
                 int yearComparison = Integer.compare(m1.getCreatedYear(), m2.getCreatedYear());
                 if (yearComparison != 0) {
                     return yearComparison;
