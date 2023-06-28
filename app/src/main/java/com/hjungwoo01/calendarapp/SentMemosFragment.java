@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.hjungwoo01.calendarapp.model.Memo;
+import com.hjungwoo01.calendarapp.retrofit.EventApi;
 import com.hjungwoo01.calendarapp.retrofit.MemoApi;
 import com.hjungwoo01.calendarapp.retrofit.RetrofitService;
 
@@ -37,6 +38,7 @@ public class SentMemosFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_sent_memos, container, false);
         initWidgets();
+        fetchMemos();
         return view;
     }
 
@@ -49,6 +51,38 @@ public class SentMemosFragment extends Fragment {
         sentMemoAdapter = new MemoRecyclerAdapter(sentMemoList);
         sentMemosRecyclerView.setAdapter(sentMemoAdapter);
     }
+
+
+    private void fetchMemos() {
+        RetrofitService retrofitService = new RetrofitService();
+        MemoApi memoApi = retrofitService.getRetrofit().create(MemoApi.class);
+
+        Call<List<Memo>> call = memoApi.getMemosByReceiver(OwnerSelectionActivity.getSelectedOwner());
+
+        call.enqueue(new Callback<List<Memo>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<Memo>> call, @NonNull Response<List<Memo>> response) {
+                if (response.isSuccessful()) {
+                    List<Memo> newMemoList = response.body();
+                    if (newMemoList != null) {
+                        sentMemoList.clear();
+                        sentMemoList.addAll(sortMemos(newMemoList));
+                        sentMemoAdapter.notifyDataSetChanged();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "No memos.", Toast.LENGTH_SHORT).show();
+                    sentMemoList.clear();
+                    sentMemoAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Memo>> call, Throwable t) {
+
+            }
+        });
+    }
+
 
     private List<Memo> sortMemos(List<Memo> memos) {
         memos.sort(new Comparator<Memo>() {
