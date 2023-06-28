@@ -10,7 +10,6 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import java.util.Objects;
 
-
 public class MemoActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPager2 viewPager2;
@@ -31,17 +30,14 @@ public class MemoActivity extends AppCompatActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager2.setCurrentItem(tab.getPosition());
             }
-
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
 
             }
-
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
 
             }
-
         });
 
         viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -51,7 +47,6 @@ public class MemoActivity extends AppCompatActivity {
                 Objects.requireNonNull(tabLayout.getTabAt(position)).select();
             }
         });
-
     }
 
     public void newMemoAction(View view) {

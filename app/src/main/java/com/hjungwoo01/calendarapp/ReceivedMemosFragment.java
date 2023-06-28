@@ -1,16 +1,14 @@
 package com.hjungwoo01.calendarapp;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -63,6 +61,7 @@ public class ReceivedMemosFragment extends Fragment {
         Call<List<Memo>> call = memoApi.getMemosByReceiver(OwnerSelectionActivity.getSelectedOwner());
 
         call.enqueue(new Callback<List<Memo>>() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onResponse(@NonNull Call<List<Memo>> call, @NonNull Response<List<Memo>> response) {
                 if (response.isSuccessful()) {
@@ -81,7 +80,7 @@ public class ReceivedMemosFragment extends Fragment {
 
             @Override
             public void onFailure(Call<List<Memo>> call, Throwable t) {
-
+                Toast.makeText(getContext(), "Failed to fetch memos: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

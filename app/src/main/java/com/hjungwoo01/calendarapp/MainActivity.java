@@ -35,7 +35,6 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity implements CalendarAdapter.OnItemListener {
     private TextView monthYearText;
     private RecyclerView calendarRecyclerView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,19 +44,15 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
         setMonthView();
         fetchEvents();
     }
-
-
     @Override
     protected void onResume() {
         super.onResume();
         fetchEvents();
     }
-
     private void initWidgets() {
         calendarRecyclerView = findViewById(R.id.calendarRecyclerView);
         monthYearText = findViewById(R.id.monthYearTV);
     }
-
     private void setMonthView() {
         monthYearText.setText(monthYearFromDate(CalendarUtils.selectedDate));
         ArrayList<LocalDate> daysInMonth = daysInMonthArray(CalendarUtils.selectedDate);

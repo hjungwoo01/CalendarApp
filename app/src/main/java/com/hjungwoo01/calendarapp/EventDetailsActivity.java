@@ -297,7 +297,6 @@ public class EventDetailsActivity extends AppCompatActivity {
         timePickerDialog.setTitle("Select Start Time");
         timePickerDialog.show();
     }
-
     public void openEndTimePicker(View view) {
         TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
             @Override
@@ -312,19 +311,15 @@ public class EventDetailsActivity extends AppCompatActivity {
         timePickerDialog.setTitle("Select End Time");
         timePickerDialog.show();
     }
-
     private String makeDateString(int day, int month, int year) {
         return makeTwoDigit(month) + "/" + makeTwoDigit(day) + "/" + year;
     }
-
     private String makeTwoDigit(int number) {
         return String.format(Locale.KOREA, "%02d", number);
     }
-
     private String getEventStartString() {
         return this.startYear + "" + makeTwoDigit(this.startMonth) + "" + makeTwoDigit(this.startDay) + "" + makeTwoDigit(this.startHour) + "" + makeTwoDigit(this.startMinute);
     }
-
     private String getEventEndString() {
         return this.endYear + "" + makeTwoDigit(this.endMonth) + "" + makeTwoDigit(this.endDay) + "" + makeTwoDigit(this.endHour) + "" + makeTwoDigit(this.endMinute);
     }
@@ -332,11 +327,9 @@ public class EventDetailsActivity extends AppCompatActivity {
     private String getRepeatEndString() {
         return this.repeatEndYear + "" + makeTwoDigit(this.repeatEndMonth) + makeTwoDigit(this.repeatEndDay);
     }
-
     public String getRepeatInterval() {
         return this.repeatInterval;
     }
-
     private void displayEventDetails() {
         setLocalVariables(this.event);
         if(event.getEventName() != null) {
@@ -377,7 +370,6 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         }
     }
-
     private void setLocalVariables(Event event) {
         this.startYear = event.getStartYear();
         this.startMonth = event.getStartMonth();

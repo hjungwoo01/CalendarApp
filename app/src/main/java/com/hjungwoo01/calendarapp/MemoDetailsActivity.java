@@ -3,7 +3,6 @@ package com.hjungwoo01.calendarapp;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -14,8 +13,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.hjungwoo01.calendarapp.model.Memo;
 import com.hjungwoo01.calendarapp.retrofit.MemoApi;
@@ -23,7 +20,6 @@ import com.hjungwoo01.calendarapp.retrofit.RetrofitService;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -140,7 +136,6 @@ public class MemoDetailsActivity extends AppCompatActivity {
             finish();
         }
     }
-
     private void initWidgets() {
         receiversTextView = findViewById(R.id.form_receiversTextView);
         inputEditMemoName = findViewById(R.id.form_textFieldMemoName);
@@ -148,11 +143,9 @@ public class MemoDetailsActivity extends AppCompatActivity {
 
         selectedReceivers = new boolean[receiversArray.length];
     }
-
     private void fetchMemoDetails(long memoId) {
         RetrofitService retrofitService = new RetrofitService();
         MemoApi memoApi = retrofitService.getRetrofit().create(MemoApi.class);
-
         memoApi.getMemo(memoId).enqueue(new Callback<Memo>() {
             @Override
             public void onResponse(@NonNull Call<Memo> call, @NonNull Response<Memo> response) {
@@ -168,14 +161,12 @@ public class MemoDetailsActivity extends AppCompatActivity {
                     Toast.makeText(MemoDetailsActivity.this, "Failed to fetch memo details.", Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
             public void onFailure(@NonNull Call<Memo> call, @NonNull Throwable t) {
                 Toast.makeText(MemoDetailsActivity.this, "Failed to fetch memo details.", Toast.LENGTH_SHORT).show();
             }
         });
     }
-
     private void displayMemoDetails() {
         if(memo.getReceiver() != null) {
             receiversTextView.setText(memo.getReceiver());
@@ -186,12 +177,6 @@ public class MemoDetailsActivity extends AppCompatActivity {
         if (memo.getMemo() != null) {
             inputEditMemo.setText(memo.getMemo());
         }
-    }
-
-    private List<String> getSelectedReceivers() {
-        List<String> receivers = new ArrayList<>();
-
-        return receivers;
     }
 
     private void updateMemo(long memoId, Memo memo) {
@@ -259,13 +244,5 @@ public class MemoDetailsActivity extends AppCompatActivity {
 
     public void backToMemoMain(View view) {
         startActivity(new Intent(MemoDetailsActivity.this, MemoActivity.class));
-    }
-
-    private String serializeReceivers(List<String> receivers) {
-        return TextUtils.join(",", receivers);
-    }
-
-    private List<String> deserializeReceivers(String serializedReceivers) {
-        return new ArrayList<>(Arrays.asList(serializedReceivers.split(",")));
     }
 }

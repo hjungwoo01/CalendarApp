@@ -1,22 +1,19 @@
 package com.hjungwoo01.calendarapp;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.hjungwoo01.calendarapp.model.Memo;
-import com.hjungwoo01.calendarapp.retrofit.EventApi;
 import com.hjungwoo01.calendarapp.retrofit.MemoApi;
 import com.hjungwoo01.calendarapp.retrofit.RetrofitService;
 
@@ -58,7 +55,6 @@ public class SentMemosFragment extends Fragment {
         sentMemosRecyclerView.setAdapter(sentMemoAdapter);
     }
 
-
     private void fetchMemos() {
         RetrofitService retrofitService = new RetrofitService();
         MemoApi memoApi = retrofitService.getRetrofit().create(MemoApi.class);
@@ -66,6 +62,7 @@ public class SentMemosFragment extends Fragment {
         Call<List<Memo>> call = memoApi.getMemosByOwner(OwnerSelectionActivity.getSelectedOwner());
 
         call.enqueue(new Callback<List<Memo>>() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onResponse(@NonNull Call<List<Memo>> call, @NonNull Response<List<Memo>> response) {
                 if (response.isSuccessful()) {
@@ -84,7 +81,7 @@ public class SentMemosFragment extends Fragment {
 
             @Override
             public void onFailure(Call<List<Memo>> call, Throwable t) {
-
+                Toast.makeText(getContext(), "Failed to fetch memos: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

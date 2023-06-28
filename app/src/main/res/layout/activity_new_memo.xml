@@ -59,18 +59,17 @@
                 android:id="@+id/form_receiversTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
                 android:background="@android:drawable/editbox_background"
-                android:drawableRight="@android:drawable/arrow_down_float"
                 android:drawablePadding="18dp"
-                android:hint="Send Memo To: "
-                android:padding="12dp" />
+                android:hint="@string/send_memo_to"
+                android:padding="12dp"
+                app:drawableRightCompat="@android:drawable/arrow_down_float" />
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/form_textFieldMemoName"
                 android:textSize="18sp"
                 android:layout_marginBottom="5dp"
-                android:hint="Memo Name"
+                android:hint="@string/memo_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
@@ -78,7 +77,7 @@
                 android:id="@+id/form_textFieldMemo"
                 android:textSize="18sp"
                 android:layout_marginBottom="5dp"
-                android:hint="Memo"
+                android:hint="@string/memo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
@@ -94,7 +93,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/form_buttonSave"
-            android:text="Save Memo"
+            android:text="@string/save_memo"
             android:backgroundTint="@color/primary"
             android:minHeight="60dp"
             android:layout_width="0dp"
