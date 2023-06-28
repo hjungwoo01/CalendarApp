@@ -39,6 +39,12 @@ public class SentMemosFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_sent_memos, container, false);
         initWidgets();
         fetchMemos();
+        sentMemoAdapter.setOnItemClickListener(new MemoRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Memo memo) {
+                showMemoDetails(memo);
+            }
+        });
         return view;
     }
 
@@ -57,7 +63,7 @@ public class SentMemosFragment extends Fragment {
         RetrofitService retrofitService = new RetrofitService();
         MemoApi memoApi = retrofitService.getRetrofit().create(MemoApi.class);
 
-        Call<List<Memo>> call = memoApi.getMemosByReceiver(OwnerSelectionActivity.getSelectedOwner());
+        Call<List<Memo>> call = memoApi.getMemosByOwner(OwnerSelectionActivity.getSelectedOwner());
 
         call.enqueue(new Callback<List<Memo>>() {
             @Override
@@ -87,7 +93,7 @@ public class SentMemosFragment extends Fragment {
     private List<Memo> sortMemos(List<Memo> memos) {
         memos.sort(new Comparator<Memo>() {
             @Override
-            public int compare(Memo m1, Memo m2) {
+            public int compare(Memo m2, Memo m1) {
                 int yearComparison = Integer.compare(m1.getCreatedYear(), m2.getCreatedYear());
                 if (yearComparison != 0) {
                     return yearComparison;

@@ -34,7 +34,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="top"
-        android:background="@color/primary"
+        android:background="@color/white"
         android:id="@+id/fragment_container"
         android:layout_below="@id/header"
         android:layout_above="@id/frame_layout">
@@ -43,7 +43,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="50dp"
             android:id="@+id/tab_layout">
 
             <com.google.android.material.tabs.TabItem
