@@ -5,16 +5,25 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-public class TabViewPagerAdapter extends FragmentStateAdapter {
+import java.util.List;
 
-    public TabViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+public class ViewPager2Adapter extends FragmentStateAdapter {
+
+    public ViewPager2Adapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
     }
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        return position == 0 ? new ReceivedMemosFragment() : new SentMemosFragment();
+        switch(position) {
+            case 0:
+                return new ReceivedMemosFragment();
+            case 1:
+                return new SentMemosFragment();
+            default:
+                return new ReceivedMemosFragment();
+        }
     }
 
     @Override

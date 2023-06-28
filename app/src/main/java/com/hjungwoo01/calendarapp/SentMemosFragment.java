@@ -7,66 +7,49 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.hjungwoo01.calendarapp.model.Memo;
 import com.hjungwoo01.calendarapp.retrofit.MemoApi;
 import com.hjungwoo01.calendarapp.retrofit.RetrofitService;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-
 public class SentMemosFragment extends Fragment {
-
-    private ListView sentMemosListView;
-    private List<Memo> memoList;
+    private RecyclerView sentMemosRecyclerView;
+    private List<Memo> sentMemoList;
+    private MemoRecyclerAdapter sentMemoAdapter;
     private View view;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_sent_memos, container, false);
         initWidgets();
-        memoList = new ArrayList<>();
-        fetchMemos();
         return view;
     }
 
-    private void fetchMemos() {
-        RetrofitService retrofitService = new RetrofitService();
-        MemoApi memoApi = retrofitService.getRetrofit().create(MemoApi.class);
+    private void initWidgets() {
+        sentMemosRecyclerView = view.findViewById(R.id.sentMemosRecyclerView);
+        sentMemosRecyclerView.setHasFixedSize(true);
+        sentMemosRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
-        Call<List<Memo>> call = memoApi.getMemosByOwner(OwnerSelectionActivity.getSelectedOwner());
-
-        call.enqueue(new Callback<List<Memo>>() {
-            @Override
-            public void onResponse(@NonNull Call<List<Memo>> call, @NonNull Response<List<Memo>> response) {
-                if (response.isSuccessful()) {
-                    memoList = response.body();
-                    fetchMemoList();
-                } else {
-                    Toast.makeText(getContext(), "No memos.", Toast.LENGTH_SHORT).show();
-                    memoList = new ArrayList<>();
-                    fetchMemoList();
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<List<Memo>> call, @NonNull Throwable t) {
-                Toast.makeText(requireContext(), "Failed to fetch memos.", Toast.LENGTH_SHORT).show();
-                Log.e("SentMemosFragment", "Error occurred: " + t.getMessage());
-            }
-        });
+        sentMemoList = new ArrayList<>();
+        sentMemoAdapter = new MemoRecyclerAdapter(sentMemoList);
+        sentMemosRecyclerView.setAdapter(sentMemoAdapter);
     }
+
     private List<Memo> sortMemos(List<Memo> memos) {
         memos.sort(new Comparator<Memo>() {
             @Override
@@ -93,27 +76,9 @@ public class SentMemosFragment extends Fragment {
         return memos;
     }
 
-    private void fetchMemoList() {
-        MemoListAdapter adapter = new MemoListAdapter(requireContext(), sortMemos(memoList));
-        sentMemosListView.setAdapter(adapter);
-    }
-
-    private void initWidgets() {
-        sentMemosListView = view.findViewById(R.id.sentMemosListView);
-
-        sentMemosListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Memo selectedMemo = (Memo) parent.getItemAtPosition(position);
-                showMemoDetails(selectedMemo);
-            }
-        });
-    }
-
     private void showMemoDetails(Memo memo) {
         Intent intent = new Intent(getContext(), MemoDetailsActivity.class);
         intent.putExtra("memoId", memo.getId());
         startActivity(intent);
     }
-
 }

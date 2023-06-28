@@ -7,11 +7,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.hjungwoo01.calendarapp.model.Memo;
 import com.hjungwoo01.calendarapp.retrofit.MemoApi;
@@ -24,49 +26,29 @@ import retrofit2.Response;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 public class ReceivedMemosFragment extends Fragment {
-
-    private ListView receivedMemosListView;
-    private List<Memo> memoList;
+    private RecyclerView receivedMemosRecyclerView;
+    private List<Memo> receivedMemoList;
+    private MemoRecyclerAdapter receivedMemoAdapter;
     private View view;
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_received_memos, container, false);
         initWidgets();
-        memoList = new ArrayList<>();
-        fetchMemos();
         return view;
     }
+    private void initWidgets() {
+        receivedMemosRecyclerView = view.findViewById(R.id.receivedMemosRecyclerView);
+        receivedMemosRecyclerView.setHasFixedSize(true);
+        receivedMemosRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
-    private void fetchMemos() {
-        RetrofitService retrofitService = new RetrofitService();
-        MemoApi memoApi = retrofitService.getRetrofit().create(MemoApi.class);
-
-        Call<List<Memo>> call = memoApi.getMemosByReceiver(OwnerSelectionActivity.getSelectedOwner());
-
-        call.enqueue(new Callback<List<Memo>>() {
-            @Override
-            public void onResponse(@NonNull Call<List<Memo>> call, @NonNull Response<List<Memo>> response) {
-                if (response.isSuccessful()) {
-                    memoList = response.body();
-                    fetchMemoList();
-                } else {
-                    Toast.makeText(getContext(), "No memos.", Toast.LENGTH_SHORT).show();
-                    memoList = new ArrayList<>();
-                    fetchMemoList();
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<List<Memo>> call, @NonNull Throwable t) {
-                Toast.makeText(requireContext(), "Failed to fetch memos.", Toast.LENGTH_SHORT).show();
-                Log.e("ReceivedMemosFragment", "Error occurred: " + t.getMessage());
-            }
-        });
+        receivedMemoList = new ArrayList<>();
+        receivedMemoAdapter = new MemoRecyclerAdapter(receivedMemoList);
+        receivedMemosRecyclerView.setAdapter(receivedMemoAdapter);
     }
+
     private List<Memo> sortMemos(List<Memo> memos) {
         memos.sort(new Comparator<Memo>() {
             @Override
@@ -92,27 +74,10 @@ public class ReceivedMemosFragment extends Fragment {
         });
         return memos;
     }
-
-    private void fetchMemoList() {
-        MemoListAdapter adapter = new MemoListAdapter(requireContext(), sortMemos(memoList));
-        receivedMemosListView.setAdapter(adapter);
-    }
-
-    private void initWidgets() {
-        receivedMemosListView = view.findViewById(R.id.receivedMemosListView);
-
-        receivedMemosListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Memo selectedMemo = (Memo) parent.getItemAtPosition(position);
-                showMemoDetails(selectedMemo);
-            }
-        });
-    }
-
     private void showMemoDetails(Memo memo) {
         Intent intent = new Intent(getContext(), MemoDetailsActivity.class);
         intent.putExtra("memoId", memo.getId());
         startActivity(intent);
     }
+
 }
