@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,8 +34,13 @@ import retrofit2.Response;
 
 public class MemoDetailsActivity extends AppCompatActivity {
     private Memo memo;
+    private TextView receiversTextView;
     private TextInputEditText inputEditMemoName;
     private TextInputEditText inputEditMemo;
+    private boolean[] selectedReceivers;
+    private List<Integer> receiversList = new ArrayList<>();
+    private final String[] receiversArray = {"Person1", "Person2", "Person3", "Person4", "Person5"};
+    private String receiversString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,27 +55,76 @@ public class MemoDetailsActivity extends AppCompatActivity {
 
             MaterialButton updateButton = findViewById(R.id.form_buttonUpdate);
 
+            receiversTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MemoDetailsActivity.this);
+
+                    builder.setTitle("Send Memo To: ");
+                    builder.setCancelable(false);
+                    builder.setMultiChoiceItems(receiversArray, selectedReceivers, new DialogInterface.OnMultiChoiceClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                            if(isChecked) {
+                                receiversList.add(which);
+                            } else {
+                                receiversList.remove(Integer.valueOf(which));
+                            }
+                        }
+                    });
+
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            StringBuilder sb = new StringBuilder();
+                            for(int i  = 0; i < receiversList.size(); i++) {
+                                sb.append(receiversArray[receiversList.get(i)]);
+                                if(i != receiversList.size() - 1) {
+                                    sb.append(",");
+                                }
+                            }
+                            receiversString = sb.toString();
+                            receiversTextView.setText(receiversString);
+                        }
+                    });
+
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            for(int i = 0; i < selectedReceivers.length; i++) {
+                                selectedReceivers[i] = false;
+                                receiversList.clear();
+                                receiversTextView.setText("");
+                            }
+                        }
+                    });
+                    builder.show();
+                }
+
+            });
+
             updateButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    List<String> receivers = getSelectedReceivers();
                     String memoName = String.valueOf(inputEditMemoName.getText());
                     String memo = String.valueOf(inputEditMemo.getText());
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm", Locale.KOREA);
                     String date = sdf.format(new Date());
 
-                    if (!receivers.isEmpty()) {
-                        Memo updatedMemo = new Memo();
-                        updatedMemo.setOwner(OwnerSelectionActivity.getSelectedOwner());
-                        updatedMemo.setReceiver(serializeReceivers(receivers));
-                        updatedMemo.setMemoName(memoName);
-                        updatedMemo.setMemo(memo);
-                        updatedMemo.setDate(date);
+                    Memo updatedMemo = new Memo();
+                    updatedMemo.setOwner(OwnerSelectionActivity.getSelectedOwner());
+                    updatedMemo.setReceiver(receiversString);
+                    updatedMemo.setMemoName(memoName);
+                    updatedMemo.setMemo(memo);
+                    updatedMemo.setDate(date);
 
-                        updateMemo(memoId, updatedMemo);
-                    } else {
-                        Toast.makeText(MemoDetailsActivity.this, "Invalid input. Please check your inputs and try again.", Toast.LENGTH_SHORT).show();
-                    }
+                    updateMemo(memoId, updatedMemo);
                 }
             });
 
@@ -87,8 +142,11 @@ public class MemoDetailsActivity extends AppCompatActivity {
     }
 
     private void initWidgets() {
+        receiversTextView = findViewById(R.id.form_receiversTextView);
         inputEditMemoName = findViewById(R.id.form_textFieldMemoName);
         inputEditMemo = findViewById(R.id.form_textFieldMemo);
+
+        selectedReceivers = new boolean[receiversArray.length];
     }
 
     private void fetchMemoDetails(long memoId) {
@@ -119,8 +177,9 @@ public class MemoDetailsActivity extends AppCompatActivity {
     }
 
     private void displayMemoDetails() {
-        List<String> receivers = deserializeReceivers(memo.getReceiver());
-
+        if(memo.getReceiver() != null) {
+            receiversTextView.setText(memo.getReceiver());
+        }
         if (memo.getMemoName() != null) {
             inputEditMemoName.setText(memo.getMemoName());
         }
