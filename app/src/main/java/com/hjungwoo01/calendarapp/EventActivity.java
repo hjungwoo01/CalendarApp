@@ -335,7 +335,6 @@ public class EventActivity extends AppCompatActivity {
                     if (response.isSuccessful()) {
                         Toast.makeText(EventActivity.this, "Save successful.", Toast.LENGTH_SHORT).show();
 
-                        // Finish the activity to return to the MainActivity
                         finish();
                     } else {
                         Toast.makeText(EventActivity.this, "Save failed.", Toast.LENGTH_SHORT).show();

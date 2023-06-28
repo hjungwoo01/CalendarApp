@@ -489,6 +489,4 @@ public class EventDetailsActivity extends AppCompatActivity {
     public void backToMain(View view) {
         startActivity(new Intent(EventDetailsActivity.this, MainActivity.class));
     }
-
-
 }
