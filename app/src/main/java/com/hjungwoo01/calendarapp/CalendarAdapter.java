@@ -67,7 +67,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
     }
 
     private boolean hasEventOnDate(LocalDate date) {
-        for (Event event : Event.eventsList) {
+        for (Event event : Event.getEventsList()) {
             try {
                 LocalDate startDate = event.getStartDate();
                 LocalDate endDate = event.getEndDate();

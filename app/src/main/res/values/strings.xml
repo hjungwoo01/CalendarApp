@@ -26,12 +26,13 @@
     <string name="event_details">Event Details</string>
     <string name="repeat">Repeat    </string>
     <string name="end_repeat">End Repeat</string>
-    <string name="owner">Owner</string>
-    <string name="select_owner">Select Owner</string>
-    <string name="change_owner">Change Owner</string>
+    <string name="owner">User</string>
+    <string name="select_owner">Select User</string>
+    <string name="change_owner">Change User</string>
     <string name="memo_details">Memo Details</string>
     <string name="send_memo_to">Send Memo To:</string>
     <string name="memo_name">Memo Name</string>
     <string name="memo">Memo</string>
     <string name="save_memo">Save Memo</string>
+    <string name="select">Select</string>
 </resources>

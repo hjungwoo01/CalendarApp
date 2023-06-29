@@ -59,9 +59,8 @@ public class SentMemosFragment extends Fragment {
         RetrofitService retrofitService = new RetrofitService();
         MemoApi memoApi = retrofitService.getRetrofit().create(MemoApi.class);
 
-        Call<List<Memo>> call = memoApi.getMemosByOwner(OwnerSelectionActivity.getSelectedOwner());
-
-        call.enqueue(new Callback<List<Memo>>() {
+        memoApi.getMemosByOwner(OwnerSelectionActivity.getSelectedOwner())
+                .enqueue(new Callback<List<Memo>>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onResponse(@NonNull Call<List<Memo>> call, @NonNull Response<List<Memo>> response) {

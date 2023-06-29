@@ -7,13 +7,6 @@
         <item>Every Month</item>
         <item>Every Year</item>
     </string-array>
-    <string-array name="owners">
-        <item>Person1</item>
-        <item>Person2</item>
-        <item>Person3</item>
-        <item>Person4</item>
-        <item>Person5</item>
-    </string-array>
     <string-array name="activities">
         <item>Scheduler</item>
         <item>Memo</item>

@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.hjungwoo01.calendarapp.model.Memo;
+import com.hjungwoo01.calendarapp.model.User;
 import com.hjungwoo01.calendarapp.retrofit.MemoApi;
 import com.hjungwoo01.calendarapp.retrofit.RetrofitService;
 
@@ -35,7 +36,7 @@ public class MemoDetailsActivity extends AppCompatActivity {
     private TextInputEditText inputEditMemo;
     private boolean[] selectedReceivers;
     private List<Integer> receiversList = new ArrayList<>();
-    private final String[] receiversArray = {"Person1", "Person2", "Person3", "Person4", "Person5"};
+    private final String[] receiversArray = User.getUsersStringArray();
     private String receiversString;
 
     @Override

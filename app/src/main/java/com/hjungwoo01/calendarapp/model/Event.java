@@ -46,6 +46,15 @@ public class Event implements Serializable {
         return events;
     }
 
+    public static List<Event> getEventsList() {
+        return eventsList;
+    }
+
+    public static void setEventsList(List<Event> list) {
+        eventsList = list;
+    }
+
+
     public long getId() { return this.id; }
     public void setId(long id) { this.id = id; }
 

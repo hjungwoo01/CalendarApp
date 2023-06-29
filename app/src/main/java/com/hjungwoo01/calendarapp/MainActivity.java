@@ -21,7 +21,6 @@ import java.util.Objects;
 
 import static com.hjungwoo01.calendarapp.CalendarUtils.daysInMonthArray;
 import static com.hjungwoo01.calendarapp.CalendarUtils.monthYearFromDate;
-import static com.hjungwoo01.calendarapp.model.RepeatedEvents.repeatedEventsMap;
 
 import com.hjungwoo01.calendarapp.model.Event;
 import com.hjungwoo01.calendarapp.model.RepeatedEvents;
@@ -67,17 +66,17 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
         RetrofitService retrofitService = new RetrofitService();
         EventApi eventApi = retrofitService.getRetrofit().create(EventApi.class);
 
-        Call<List<Event>> call = eventApi.getEventsByOwner(OwnerSelectionActivity.getSelectedOwner());
-        call.enqueue(new Callback<List<Event>>() {
+        eventApi.getEventsByOwner(OwnerSelectionActivity.getSelectedOwner())
+                .enqueue(new Callback<List<Event>>() {
             @Override
             public void onResponse(@NonNull Call<List<Event>> call, @NonNull Response<List<Event>> response) {
                 if (response.isSuccessful()) {
-                    Event.eventsList = response.body();
+                    Event.setEventsList(response.body());
                     setMonthView();
                 } else {
                     Toast.makeText(MainActivity.this, "Empty calendar.", Toast.LENGTH_SHORT).show();
-                    Event.eventsList = new ArrayList<>();
-                    RepeatedEvents.repeatedEventsMap = new HashMap<>();
+                    Event.setEventsList(new ArrayList<>());
+                    RepeatedEvents.setRepeatedEventsMap(new HashMap<>());
                     setMonthView();
                 }
             }
@@ -113,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
                         RepeatedEvents.repeatedEventsForDate(CalendarUtils.selectedDate).size() > 1) {
                     startActivity(new Intent(MainActivity.this, EventListActivity.class));
                 } else {
-                    long eventId = Objects.requireNonNull(repeatedEventsMap.getOrDefault(clickedEvent, clickedEvent)).getId();
+                    long eventId = Objects.requireNonNull(RepeatedEvents.getRepeatedEventsMap().getOrDefault(clickedEvent, clickedEvent)).getId();
 
                     Intent intent = new Intent(MainActivity.this, EventDetailsActivity.class);
                     intent.putExtra("eventId", eventId);
@@ -130,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
     }
 
     private Event getClickedEvent(LocalDate date) {
-        for (Event event : Event.eventsList) {
+        for (Event event : Event.getEventsList()) {
             LocalDate eventStartDate = LocalDate.parse(event.getEventStart(), DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
             LocalDate eventEndDate = LocalDate.parse(event.getEventEnd(), DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
             if (eventStartDate.equals(date) || date.isAfter(eventStartDate) && date.isBefore(eventEndDate.plusDays(1))) {
@@ -138,11 +137,11 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
             }
         }
 
-        for(Event e : repeatedEventsMap.keySet()) {
+        for(Event e : RepeatedEvents.getRepeatedEventsMap().keySet()) {
             LocalDate repeatedEventStartDate = LocalDate.parse(e.getEventStart(), DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
             LocalDate repeatedEventEndDate = LocalDate.parse(e.getEventEnd(), DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
             if (repeatedEventStartDate.equals(date) || date.isAfter(repeatedEventStartDate) && date.isBefore(repeatedEventEndDate.plusDays(1))) {
-                return repeatedEventsMap.get(e);
+                return RepeatedEvents.getRepeatedEventsMap().get(e);
             }
         }
         return null;

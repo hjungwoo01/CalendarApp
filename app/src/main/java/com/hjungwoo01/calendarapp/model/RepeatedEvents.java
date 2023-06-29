@@ -27,6 +27,9 @@ public class RepeatedEvents {
         return events;
     }
 
+    public static Map<Event, Event> getRepeatedEventsMap() { return repeatedEventsMap; }
+    public static void setRepeatedEventsMap(Map<Event, Event> map) { repeatedEventsMap = map; }
+
     public List<Event> getRecurringEvents() {
         List<Event> recurringEvents = new ArrayList<>();
         int repeatPosition = baseEvent.getRepeatPosition();

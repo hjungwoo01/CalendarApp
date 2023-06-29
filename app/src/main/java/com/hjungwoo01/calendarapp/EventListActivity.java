@@ -1,7 +1,5 @@
 package com.hjungwoo01.calendarapp;
 
-import static com.hjungwoo01.calendarapp.model.RepeatedEvents.repeatedEventsMap;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -70,7 +68,7 @@ public class EventListActivity extends AppCompatActivity {
 
     private void showEventDetails(Event event) {
         Intent intent = new Intent(EventListActivity.this, EventDetailsActivity.class);
-        intent.putExtra("eventId", Objects.requireNonNull(repeatedEventsMap.getOrDefault(event, event)).getId());
+        intent.putExtra("eventId", Objects.requireNonNull(RepeatedEvents.getRepeatedEventsMap().getOrDefault(event, event)).getId());
         startActivity(intent);
     }
 
