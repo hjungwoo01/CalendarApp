@@ -13,21 +13,21 @@ import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface EventApi {
-    @GET("/db_calendar/scheduler/get-all")
+    @GET("/scheduler/events/get-all")
     Call<List<Event>> getAllEvents();
 
-    @GET("/db_calendar/scheduler/get-by-owner/{owner}")
+    @GET("/scheduler/events/get-by-owner/{owner}")
     Call<List<Event>> getEventsByOwner(@Path("owner") String owner);
-    @GET("/db_calendar/scheduler/get/{id}")
+    @GET("/scheduler/events/get/{id}")
     Call<Event> getEvent(@Path("id") long id);
 
-    @POST("/db_calendar/scheduler/save")
+    @POST("/scheduler/events/save")
     Call<Void> save(@Body Event event);
 
-    @DELETE("/db_calendar/scheduler/delete/{id}")
+    @DELETE("/scheduler/events/delete/{id}")
     Call<Void> deleteEvent(@Path("id") long id);
 
-    @PUT("/db_calendar/scheduler/update/{id}")
+    @PUT("/scheduler/events/update/{id}")
     Call<Void> updateEvent(@Path("id") long id, @Body Event event);
 
 }
