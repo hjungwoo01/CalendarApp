@@ -32,5 +32,4 @@ public interface MemoApi {
 
     @PUT("/memos/memos/update/{id}")
     Call<Void> updateMemo(@Path("id") long id, @Body Memo memo);
-
 }

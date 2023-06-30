@@ -8,13 +8,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
+
 import java.util.Objects;
 
 public class MemoActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPager2 viewPager2;
     ViewPager2Adapter viewPager2Adapter;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +48,6 @@ public class MemoActivity extends AppCompatActivity {
             }
         });
     }
-
     public void newMemoAction(View view) {
         startActivity(new Intent(MemoActivity.this, NewMemoActivity.class));
     }
