@@ -1,35 +1,60 @@
 package com.hjungwoo01.calendarapp;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.hjungwoo01.calendarapp.model.File;
 import com.hjungwoo01.calendarapp.model.Memo;
 import com.hjungwoo01.calendarapp.model.User;
+import com.hjungwoo01.calendarapp.retrofit.FileApi;
 import com.hjungwoo01.calendarapp.retrofit.MemoApi;
 import com.hjungwoo01.calendarapp.retrofit.RetrofitService;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MemoDetailsActivity extends AppCompatActivity {
+    private static final int REQUEST_FILE_PERMISSION = 1;
     private Memo memo;
     private TextView receiversTextView;
     private TextInputEditText inputEditMemoName;
@@ -38,6 +63,16 @@ public class MemoDetailsActivity extends AppCompatActivity {
     private List<Integer> receiversList = new ArrayList<>();
     private final String[] receiversArray = User.getUsersStringArray();
     private String receiversString;
+    private ImageView selectedImageView;
+    private Button buttonSelectFile;
+    private File memoFile;
+    private Bitmap bitmap;
+    private ActivityResultLauncher<Intent> activityResultLauncher;
+    private final AtomicReference<byte[]> fileDataRef = new AtomicReference<>(null);
+    private final String[] selectedFileType = new String[1];
+    private RetrofitService retrofitService;
+    private MemoApi memoApi;
+    private FileApi fileApi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,105 +83,167 @@ public class MemoDetailsActivity extends AppCompatActivity {
         long memoId = getIntent().getLongExtra("memoId", -1);
 
         if (memoId != -1) {
+            retrofitService = new RetrofitService();
+            memoApi = retrofitService.getRetrofit().create(MemoApi.class);
+            fileApi = retrofitService.getRetrofit().create(FileApi.class);
             fetchMemoDetails(memoId);
-
-            MaterialButton updateButton = findViewById(R.id.form_buttonUpdate);
-
-            receiversTextView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MemoDetailsActivity.this);
-
-                    builder.setTitle("Send Memo To: ");
-                    builder.setCancelable(false);
-                    builder.setMultiChoiceItems(receiversArray, selectedReceivers, new DialogInterface.OnMultiChoiceClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                            if(isChecked) {
-                                receiversList.add(which);
-                            } else {
-                                receiversList.remove(Integer.valueOf(which));
-                            }
-                        }
-                    });
-
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            StringBuilder sb = new StringBuilder();
-                            for(int i  = 0; i < receiversList.size(); i++) {
-                                sb.append(receiversArray[receiversList.get(i)]);
-                                if(i != receiversList.size() - 1) {
-                                    sb.append(",");
-                                }
-                            }
-                            receiversString = sb.toString();
-                            receiversTextView.setText(receiversString);
-                        }
-                    });
-
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-                    builder.setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            for(int i = 0; i < selectedReceivers.length; i++) {
-                                selectedReceivers[i] = false;
-                                receiversList.clear();
-                                receiversTextView.setText("");
-                            }
-                        }
-                    });
-                    builder.show();
-                }
-
-            });
-
-            updateButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String memoName = String.valueOf(inputEditMemoName.getText());
-                    String memo = String.valueOf(inputEditMemo.getText());
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm", Locale.KOREA);
-                    String date = sdf.format(new Date());
-
-                    Memo updatedMemo = new Memo();
-                    updatedMemo.setOwner(OwnerSelectionActivity.getSelectedOwner());
-                    updatedMemo.setReceiver(receiversString);
-                    updatedMemo.setMemoName(memoName);
-                    updatedMemo.setMemo(memo);
-                    updatedMemo.setDate(date);
-
-                    updateMemo(memoId, updatedMemo);
-                }
-            });
-
-            MaterialButton deleteButton = findViewById(R.id.form_buttonDelete);
-            deleteButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showDeleteConfirmationDialog(memoId);
-                }
-            });
+            fetchMemoFile(memoId);
+            initializeComponents(memoId);
         } else {
             Toast.makeText(this, "Memo ID not found", Toast.LENGTH_SHORT).show();
             finish();
         }
     }
+
     private void initWidgets() {
         receiversTextView = findViewById(R.id.form_receiversTextView);
         inputEditMemoName = findViewById(R.id.form_textFieldMemoName);
         inputEditMemo = findViewById(R.id.form_textFieldMemo);
-
+        selectedImageView = findViewById(R.id.selectedImageView);
+        buttonSelectFile = findViewById(R.id.select_file);
         selectedReceivers = new boolean[receiversArray.length];
     }
+
+    private void initializeComponents(long memoId) {
+        MaterialButton updateButton = findViewById(R.id.form_buttonUpdate);
+
+        receiversTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MemoDetailsActivity.this);
+
+                builder.setTitle("Send Memo To: ");
+                builder.setCancelable(false);
+                builder.setMultiChoiceItems(receiversArray, selectedReceivers, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                        if(isChecked) {
+                            receiversList.add(which);
+                        } else {
+                            receiversList.remove(Integer.valueOf(which));
+                        }
+                    }
+                });
+
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        StringBuilder sb = new StringBuilder();
+                        for(int i  = 0; i < receiversList.size(); i++) {
+                            sb.append(receiversArray[receiversList.get(i)]);
+                            if(i != receiversList.size() - 1) {
+                                sb.append(",");
+                            }
+                        }
+                        receiversString = sb.toString();
+                        receiversTextView.setText(receiversString);
+                    }
+                });
+
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        for(int i = 0; i < selectedReceivers.length; i++) {
+                            selectedReceivers[i] = false;
+                            receiversList.clear();
+                            receiversTextView.setText("");
+                        }
+                    }
+                });
+                builder.show();
+            }
+
+        });
+
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            Intent data = result.getData();
+                            assert data != null;
+                            Uri uri = data.getData();
+                            selectedFileType[0] = getContentResolver().getType(uri);
+                            fileDataRef.set(readFileData(uri));
+                            try {
+                                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                                selectedImageView.setImageBitmap(bitmap);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
+                });
+
+        buttonSelectFile.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(MemoDetailsActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    startFileSelection();
+                } else {
+                    if (shouldShowRequestPermissionRationale(android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MemoDetailsActivity.this);
+                        builder.setTitle("Permission Required")
+                                .setMessage("This app requires permission to access external storage in order to select files.")
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        ActivityCompat.requestPermissions(MemoDetailsActivity.this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_FILE_PERMISSION);
+                                    }
+                                })
+                                .setNegativeButton("Cancel", null)
+                                .create()
+                                .show();
+                        Snackbar.make(v, "This app requires permission to access external storage in order to select files.", Snackbar.LENGTH_LONG)
+                                .setAction("OK", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        ActivityCompat.requestPermissions(MemoDetailsActivity.this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_FILE_PERMISSION);
+                                    }
+                                })
+                                .show();
+                    }
+                    ActivityCompat.requestPermissions(MemoDetailsActivity.this, new String[]{Manifest.permission.READ_MEDIA_IMAGES}, REQUEST_FILE_PERMISSION);
+                }
+            }
+        });
+
+        updateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String memoName = String.valueOf(inputEditMemoName.getText());
+                String memo = String.valueOf(inputEditMemo.getText());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm", Locale.KOREA);
+                String date = sdf.format(new Date());
+
+                Memo updatedMemo = new Memo();
+                updatedMemo.setOwner(OwnerSelectionActivity.getSelectedOwner());
+                updatedMemo.setReceiver(receiversString);
+                updatedMemo.setMemoName(memoName);
+                updatedMemo.setMemo(memo);
+                updatedMemo.setDate(date);
+
+                updateMemo(memoId, updatedMemo);
+            }
+        });
+
+        MaterialButton deleteButton = findViewById(R.id.form_buttonDelete);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDeleteConfirmationDialog(memoId);
+            }
+        });
+    }
+
     private void fetchMemoDetails(long memoId) {
-        RetrofitService retrofitService = new RetrofitService();
-        MemoApi memoApi = retrofitService.getRetrofit().create(MemoApi.class);
         memoApi.getMemo(memoId).enqueue(new Callback<Memo>() {
             @Override
             public void onResponse(@NonNull Call<Memo> call, @NonNull Response<Memo> response) {
@@ -168,9 +265,43 @@ public class MemoDetailsActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void fetchMemoFile(long memoId) {
+        fileApi.getFileByMemoId(memoId).enqueue(new Callback<File>() {
+            @Override
+            public void onResponse(@NonNull Call<File> call, @NonNull Response<File> response) {
+                if (response.isSuccessful()) {
+                    memoFile = response.body();
+                    if (memoFile != null) {
+                        if(memoFile.getType().startsWith("image/")) {
+                            showMemoFileImage(memoFile);
+                        }
+                    }
+                } else {
+                    Toast.makeText(MemoDetailsActivity.this, "Failed to fetch memo file.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<File> call, @NonNull Throwable t) {
+                Toast.makeText(MemoDetailsActivity.this, "Failed to fetch memo file from server.", Toast.LENGTH_SHORT).show();
+                Log.e("MemoDetailsActivity", "Error occurred while fetching memo file: " + t.getMessage());
+            }
+        });
+    }
+
+    private void showMemoFileImage(File fileImage) {
+        if (fileImage.getData() != null) {
+            Glide.with(this)
+                    .load(fileImage.getData())
+                    .into(selectedImageView);
+        }
+    }
+
     private void displayMemoDetails() {
         if(memo.getReceiver() != null) {
-            receiversTextView.setText(memo.getReceiver());
+            receiversString = memo.getReceiver();
+            receiversTextView.setText(receiversString);
         }
         if (memo.getMemoName() != null) {
             inputEditMemoName.setText(memo.getMemoName());
@@ -180,17 +311,22 @@ public class MemoDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void updateMemo(long memoId, Memo memo) {
-        RetrofitService retrofitService = new RetrofitService();
-        MemoApi memoApi = retrofitService.getRetrofit().create(MemoApi.class);
+    private void startFileSelection() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setData(MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        activityResultLauncher.launch(intent);
+    }
 
-        memoApi.updateMemo(memoId, memo).enqueue(new Callback<Void>() {
+    private void updateMemo(long memoId, Memo memo) {
+        memoApi.updateMemo(memoId, memo).enqueue(new Callback<Memo>() {
             @Override
-            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+            public void onResponse(@NonNull Call<Memo> call, @NonNull Response<Memo> response) {
                 if (response.isSuccessful()) {
+                    Memo updatedMemo = response.body();
+                    assert updatedMemo != null;
+                    updateFileAssociatedWithMemo(updatedMemo);
                     Toast.makeText(MemoDetailsActivity.this, "Update successful.", Toast.LENGTH_SHORT).show();
 
-                    startActivity(new Intent(MemoDetailsActivity.this, MemoActivity.class));
                     finish();
                 } else {
                     Toast.makeText(MemoDetailsActivity.this, "Update failed.", Toast.LENGTH_SHORT).show();
@@ -198,8 +334,69 @@ public class MemoDetailsActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<Memo> call, @NonNull Throwable t) {
                 Toast.makeText(MemoDetailsActivity.this, "Update failed.", Toast.LENGTH_SHORT).show();
+                Log.e("MemoDetailsActivity", "Error occurred: " + t.getMessage());
+            }
+        });
+    }
+
+    private void updateFileAssociatedWithMemo(Memo updatedMemo) {
+        File file = new File();
+
+        file.setMemoId(updatedMemo.getId());
+        file.setName(updatedMemo.getMemoName());
+        file.setType(selectedFileType[0]);
+        file.setData(fileDataRef.get());
+
+        fileApi.updateFile(memoFile.getId(), file).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(MemoDetailsActivity.this, "File updated.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MemoDetailsActivity.this, "Failed to update file.", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                Toast.makeText(MemoDetailsActivity.this, "Failed to update file.", Toast.LENGTH_SHORT).show();
+                Log.e("MemoDetailsActivity", "Error occurred while updating file: " + t.getMessage());
+            }
+        });
+    }
+    private void deleteMemo(long memoId) {
+        memoApi.deleteMemo(memoId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                if (response.isSuccessful()) {
+                    assert memoFile != null;
+                    fileApi.deleteFile(memoFile.getId()).enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(MemoDetailsActivity.this, "Memo and file deleted.", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(MemoDetailsActivity.this, "Failed to delete file.", Toast.LENGTH_SHORT).show();
+                            }
+                            finish();
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                            Toast.makeText(MemoDetailsActivity.this, "Failed to delete file.", Toast.LENGTH_SHORT).show();
+                            Log.e("MemoDetailsActivity", "Error occurred while deleting file: " + t.getMessage());
+                            finish();
+                        }
+                    });
+                } else {
+                    Toast.makeText(MemoDetailsActivity.this, "No file associated with the memo.", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+            @Override
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                Toast.makeText(MemoDetailsActivity.this, "Failed to delete memo.", Toast.LENGTH_SHORT).show();
                 Log.e("MemoDetailsActivity", "Error occurred: " + t.getMessage());
             }
         });
@@ -219,28 +416,34 @@ public class MemoDetailsActivity extends AppCompatActivity {
         builder.show();
     }
 
-    private void deleteMemo(long memoId) {
-        RetrofitService retrofitService = new RetrofitService();
-        MemoApi memoApi = retrofitService.getRetrofit().create(MemoApi.class);
-        memoApi.deleteMemo(memoId).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(MemoDetailsActivity.this, "Memo deleted.", Toast.LENGTH_SHORT).show();
-
-                    startActivity(new Intent(MemoDetailsActivity.this, MemoActivity.class));
-                    finish();
-                } else {
-                    Toast.makeText(MemoDetailsActivity.this, "Failed to delete memo.", Toast.LENGTH_SHORT).show();
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_FILE_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startFileSelection();
+            } else {
+                Toast.makeText(this, "Permission denied. Unable to select file.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    private byte[] readFileData(Uri uri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream != null) {
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = inputStream.read(buffer)) != -1) {
+                    byteArrayOutputStream.write(buffer, 0, length);
                 }
+                inputStream.close();
+                return byteArrayOutputStream.toByteArray();
             }
-
-            @Override
-            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
-                Toast.makeText(MemoDetailsActivity.this, "Failed to delete memo.", Toast.LENGTH_SHORT).show();
-                Log.e("MemoDetailsActivity", "Error occurred: " + t.getMessage());
-            }
-        });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void backToMemoMain(View view) {

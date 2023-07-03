@@ -151,17 +151,17 @@ public class NewMemoActivity extends AppCompatActivity {
                     public void onActivityResult(ActivityResult result) {
                         if (result.getResultCode() == Activity.RESULT_OK) {
                             Intent data = result.getData();
-                            assert data != null;
-                            Uri uri = data.getData();
-                            selectedFileType[0] = getContentResolver().getType(uri);
-                            fileDataRef.set(readFileData(uri));
-                            try {
-                                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                                selectedImageView.setImageBitmap(bitmap);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
+                            if(data != null && data.getData() != null) {
+                                Uri uri = data.getData();
+                                selectedFileType[0] = getContentResolver().getType(uri);
+                                fileDataRef.set(readFileData(uri));
+                                try {
+                                    bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                                    selectedImageView.setImageBitmap(bitmap);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
                             }
-
                         }
                     }
                 });
@@ -213,39 +213,48 @@ public class NewMemoActivity extends AppCompatActivity {
             newMemo.setMemo(memo);
             newMemo.setDate(date);
 
-            memoApi.save(newMemo).enqueue(new Callback<Void>() {
+            memoApi.save(newMemo).enqueue(new Callback<Memo>() {
                 @Override
-                public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                public void onResponse(@NonNull Call<Memo> call, @NonNull Response<Memo> response) {
                     if (response.isSuccessful()) {
-                        File file = new File();
-                        file.setMemoId(newMemo.getId());
-                        file.setName(newMemo.getMemoName());
-                        file.setType(selectedFileType[0]);
-                        file.setData(fileDataRef.get());
+                        Memo savedMemo = response.body();
+                        if (savedMemo != null) {
+                            File file = new File();
+                            file.setMemoId(savedMemo.getId());
+                            file.setName(savedMemo.getMemoName());
+                            file.setType(selectedFileType[0]);
+                            file.setData(fileDataRef.get());
 
-                        fileApi.upload(file).enqueue(new Callback<Void>() {
-                            @Override
-                            public void onResponse(Call<Void> call, Response<Void> response) {
-                                if (response.isSuccessful()) {
-                                    Toast.makeText(NewMemoActivity.this, "File upload successful.", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(NewMemoActivity.this, "File upload failed.", Toast.LENGTH_SHORT).show();
+                            fileApi.upload(file).enqueue(new Callback<Void>() {
+                                @Override
+                                public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                                    if (response.isSuccessful()) {
+                                        Toast.makeText(NewMemoActivity.this, "File upload successful.", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(NewMemoActivity.this, "File upload failed.", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
-                            }
-                            @Override
-                            public void onFailure(Call<Void> call, Throwable t) {
-                                Toast.makeText(NewMemoActivity.this, "File upload failed.", Toast.LENGTH_SHORT).show();
-                                Log.e("NewMemoActivity", "Error occurred while saving file: " + t.getMessage());
-                            }
-                        });
-                        Toast.makeText(NewMemoActivity.this, "Memo saved.", Toast.LENGTH_SHORT).show();
-                        finish();
+
+                                @Override
+                                public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                                    Toast.makeText(NewMemoActivity.this, "File upload failed.", Toast.LENGTH_SHORT).show();
+                                    Log.e("NewMemoActivity", "Error occurred while saving file: " + t.getMessage());
+                                }
+                            });
+
+                            Toast.makeText(NewMemoActivity.this, "Memo saved.", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(NewMemoActivity.this, MemoActivity.class));
+                            finish();
+                        } else {
+                            Toast.makeText(NewMemoActivity.this, "Save failed.", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
                         Toast.makeText(NewMemoActivity.this, "Save failed.", Toast.LENGTH_SHORT).show();
                     }
                 }
+
                 @Override
-                public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                public void onFailure(@NonNull Call<Memo> call, @NonNull Throwable t) {
                     Toast.makeText(NewMemoActivity.this, "Save failed.", Toast.LENGTH_SHORT).show();
                     Log.e("NewMemoActivity", "Error occurred while saving memo: " + t.getMessage());
                 }

@@ -26,7 +26,7 @@
             android:layout_weight="1"/>
 
         <TextView
-            android:id="@+id/eventDetails"
+            android:id="@+id/memoDetails"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/memo_details"
@@ -90,7 +90,8 @@
             android:src="@drawable/ic_launcher_background"
             android:layout_width="match_parent"
             android:layout_height="250dp"
-            android:text="@string/no_file_selected" />
+            android:text="@string/no_file_selected"
+            android:contentDescription="TODO" />
 
         <Button
             android:id="@+id/select_file"

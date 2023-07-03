@@ -25,11 +25,11 @@ public interface MemoApi {
     Call<Memo> getMemo(@Path("id") long id);
 
     @POST("/memos/memos/save")
-    Call<Void> save(@Body Memo memo);
+    Call<Memo> save(@Body Memo memo);
 
     @DELETE("/memos/memos/delete/{id}")
     Call<Void> deleteMemo(@Path("id") long id);
 
     @PUT("/memos/memos/update/{id}")
-    Call<Void> updateMemo(@Path("id") long id, @Body Memo memo);
+    Call<Memo> updateMemo(@Path("id") long id, @Body Memo memo);
 }

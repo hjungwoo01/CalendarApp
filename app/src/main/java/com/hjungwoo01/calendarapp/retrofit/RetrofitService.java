@@ -22,6 +22,7 @@ public class RetrofitService {
                 .baseUrl("http://192.168.4.40:8080")
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
+
     }
 
     public Retrofit getRetrofit() {

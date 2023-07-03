@@ -1,13 +1,13 @@
 package com.hjungwoo01.calendarapp.model;
 
 public class File {
-    private String id;
+    private long id;
     private long memoId;
     private String name;
     private String type;
     private byte[] data;
 
-    public String getId() { return this.id; }
+    public long getId() { return this.id; }
     public String getName() { return this.name; }
     public void setName(String name) { this.name = name; }
     public String getType() { return this.type; }

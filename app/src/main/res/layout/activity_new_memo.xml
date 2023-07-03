@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="25dp"
-    tools:context=".MemoDetailsActivity">
+    tools:context=".NewMemoActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,10 +26,10 @@
             android:layout_weight="1"/>
 
         <TextView
-            android:id="@+id/eventDetails"
+            android:id="@+id/newMemo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/memo_details"
+            android:text="@string/new_memo"
             android:textStyle="bold"
             android:textSize="25sp"
             android:textAlignment="center"
