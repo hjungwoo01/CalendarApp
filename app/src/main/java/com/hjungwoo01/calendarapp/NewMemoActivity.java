@@ -284,14 +284,14 @@ public class NewMemoActivity extends AppCompatActivity {
         try {
             InputStream inputStream = getContentResolver().openInputStream(uri);
             if (inputStream != null) {
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
                 byte[] buffer = new byte[1024];
                 int length;
                 while ((length = inputStream.read(buffer)) != -1) {
-                    byteArrayOutputStream.write(buffer, 0, length);
+                    byteBuffer.write(buffer, 0, length);
                 }
                 inputStream.close();
-                return byteArrayOutputStream.toByteArray();
+                return byteBuffer.toByteArray();
             }
         } catch (IOException e) {
             e.printStackTrace();
