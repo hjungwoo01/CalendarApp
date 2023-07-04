@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -49,8 +50,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.HttpException;
 import retrofit2.Response;
 
 public class MemoDetailsActivity extends AppCompatActivity {
@@ -65,7 +68,6 @@ public class MemoDetailsActivity extends AppCompatActivity {
     private String receiversString;
     private ImageView selectedImageView;
     private Button buttonSelectFile;
-    private File memoFile;
     private Bitmap bitmap;
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private final AtomicReference<byte[]> fileDataRef = new AtomicReference<>(null);
@@ -73,6 +75,7 @@ public class MemoDetailsActivity extends AppCompatActivity {
     private RetrofitService retrofitService;
     private MemoApi memoApi;
     private FileApi fileApi;
+    private boolean hasMemoFile = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -267,15 +270,19 @@ public class MemoDetailsActivity extends AppCompatActivity {
     }
 
     private void fetchMemoFile(long memoId) {
-        fileApi.getFileByMemoId(memoId).enqueue(new Callback<File>() {
+        fileApi.getFileByMemoId(memoId).enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(@NonNull Call<File> call, @NonNull Response<File> response) {
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    memoFile = response.body();
-                    if (memoFile != null) {
-                        if(memoFile.getType().startsWith("image/")) {
-                            showMemoFileImage(memoFile);
+                    try (ResponseBody responseBody = response.body()) {
+                        if (responseBody != null) {
+                            InputStream inputStream = responseBody.byteStream();
+                            showMemoFileImage(inputStream);
+                            hasMemoFile = true;
                         }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(MemoDetailsActivity.this, "Error occurred while reading the response body.", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     Toast.makeText(MemoDetailsActivity.this, "Failed to fetch memo file.", Toast.LENGTH_SHORT).show();
@@ -283,19 +290,36 @@ public class MemoDetailsActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(@NonNull Call<File> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 Toast.makeText(MemoDetailsActivity.this, "Failed to fetch memo file from server.", Toast.LENGTH_SHORT).show();
-                Log.e("MemoDetailsActivity", "Error occurred while fetching memo file: " + t.getMessage());
+                if (t instanceof HttpException) {
+                    int responseCode = ((HttpException) t).code();
+                    Log.e("MemoDetailsActivity", "HTTP error occurred: " + responseCode);
+                } else {
+                    Log.e("MemoDetailsActivity", "Error occurred while fetching memo file: " + t.getMessage());
+                }
             }
         });
     }
 
-    private void showMemoFileImage(File fileImage) {
-        if (fileImage.getData() != null) {
-            Glide.with(this)
-                    .load(fileImage.getData())
-                    .into(selectedImageView);
+    private void showMemoFileImage(InputStream inputStream) throws IOException {
+        if (inputStream == null) {
+            throw new IOException("Invalid input stream");
         }
+        byte[] byteArray = getByteArrayFromInputStream(inputStream);
+        Glide.with(this)
+                .load(byteArray)
+                .into(selectedImageView);
+    }
+
+    private byte[] getByteArrayFromInputStream(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = inputStream.read(buffer)) != -1) {
+            byteArrayOutputStream.write(buffer, 0, length);
+        }
+        return byteArrayOutputStream.toByteArray();
     }
 
     private void displayMemoDetails() {
@@ -323,10 +347,54 @@ public class MemoDetailsActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<Memo> call, @NonNull Response<Memo> response) {
                 if (response.isSuccessful()) {
                     Memo updatedMemo = response.body();
+                    File updatedFile = new File();
+                    updatedFile.setMemoId(memoId);
                     assert updatedMemo != null;
-                    updateFileAssociatedWithMemo(updatedMemo);
-                    Toast.makeText(MemoDetailsActivity.this, "Update successful.", Toast.LENGTH_SHORT).show();
+                    updatedFile.setName(updatedMemo.getMemoName());
+                    updatedFile.setType(selectedFileType[0]);
+                    updatedFile.setData(fileDataRef.get());
 
+                    if(hasMemoFile) {
+                        fileApi.updateFileByMemoId(memoId, updatedFile).enqueue(new Callback<Void>() {
+                            @Override
+                            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                                if (response.isSuccessful()) {
+                                    Toast.makeText(MemoDetailsActivity.this, "Memo and file updated.", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(MemoDetailsActivity.this, "Failed to update file.", Toast.LENGTH_SHORT).show();
+                                }
+                                startActivity(new Intent(MemoDetailsActivity.this, MemoActivity.class));
+                                finish();
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                                Toast.makeText(MemoDetailsActivity.this, "Failed to update file.", Toast.LENGTH_SHORT).show();
+                                Log.e("MemoDetailsActivity", "Error occurred while updating file: " + t.getMessage());
+                                finish();
+                            }
+                        });
+
+                    } else {
+                        fileApi.upload(updatedFile).enqueue(new Callback<Void>() {
+                            @Override
+                            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                                if (response.isSuccessful()) {
+                                    Toast.makeText(MemoDetailsActivity.this, "File upload successful.", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(MemoDetailsActivity.this, "File upload failed.", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                                Toast.makeText(MemoDetailsActivity.this, "File upload failed.", Toast.LENGTH_SHORT).show();
+                                Log.e("MemoDetailsActivity", "Error occurred while saving file: " + t.getMessage());
+                            }
+                        });
+                    }
+                    Toast.makeText(MemoDetailsActivity.this, "Update successful.", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(MemoDetailsActivity.this, MemoActivity.class));
                     finish();
                 } else {
                     Toast.makeText(MemoDetailsActivity.this, "Update failed.", Toast.LENGTH_SHORT).show();
@@ -341,37 +409,13 @@ public class MemoDetailsActivity extends AppCompatActivity {
         });
     }
 
-    private void updateFileAssociatedWithMemo(Memo updatedMemo) {
-        File file = new File();
-
-        file.setMemoId(updatedMemo.getId());
-        file.setName(updatedMemo.getMemoName());
-        file.setType(selectedFileType[0]);
-        file.setData(fileDataRef.get());
-
-        fileApi.updateFile(memoFile.getId(), file).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(MemoDetailsActivity.this, "File updated.", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(MemoDetailsActivity.this, "Failed to update file.", Toast.LENGTH_SHORT).show();
-                }
-            }
-            @Override
-            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
-                Toast.makeText(MemoDetailsActivity.this, "Failed to update file.", Toast.LENGTH_SHORT).show();
-                Log.e("MemoDetailsActivity", "Error occurred while updating file: " + t.getMessage());
-            }
-        });
-    }
     private void deleteMemo(long memoId) {
         memoApi.deleteMemo(memoId).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                 if (response.isSuccessful()) {
-                    assert memoFile != null;
-                    fileApi.deleteFile(memoFile.getId()).enqueue(new Callback<Void>() {
+                    Log.e("delete memo", String.valueOf(memoId));
+                    fileApi.deleteFileByMemoId(memoId).enqueue(new Callback<Void>() {
                         @Override
                         public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                             if (response.isSuccessful()) {
@@ -379,6 +423,7 @@ public class MemoDetailsActivity extends AppCompatActivity {
                             } else {
                                 Toast.makeText(MemoDetailsActivity.this, "Failed to delete file.", Toast.LENGTH_SHORT).show();
                             }
+                            startActivity(new Intent(MemoDetailsActivity.this, MemoActivity.class));
                             finish();
                         }
 
@@ -386,11 +431,13 @@ public class MemoDetailsActivity extends AppCompatActivity {
                         public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
                             Toast.makeText(MemoDetailsActivity.this, "Failed to delete file.", Toast.LENGTH_SHORT).show();
                             Log.e("MemoDetailsActivity", "Error occurred while deleting file: " + t.getMessage());
+                            startActivity(new Intent(MemoDetailsActivity.this, MemoActivity.class));
                             finish();
                         }
                     });
                 } else {
                     Toast.makeText(MemoDetailsActivity.this, "No file associated with the memo.", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(MemoDetailsActivity.this, MemoActivity.class));
                     finish();
                 }
             }

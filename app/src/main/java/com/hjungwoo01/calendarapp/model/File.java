@@ -24,4 +24,8 @@ public class File {
     public void setData(byte[] data) {
         this.data = data;
     }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 }

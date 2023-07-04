@@ -1,10 +1,10 @@
 package com.hjungwoo01.calendarapp.retrofit;
 
 import com.hjungwoo01.calendarapp.model.File;
-import com.hjungwoo01.calendarapp.model.Memo;
 
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -18,17 +18,17 @@ public interface FileApi {
     Call<List<File>> getAllFiles();
 
     @GET("/memos/files/get/{id}")
-    Call<File> getFile(@Path("id") long id);
+    Call<ResponseBody> getFile(@Path("id") long id);
 
     @GET("/memos/files/getByMemoId/{memoId}")
-    Call<File> getFileByMemoId(@Path("memoId")long memoId);
+    Call<ResponseBody> getFileByMemoId(@Path("memoId")long memoId);
 
     @POST("/memos/files/upload")
     Call<Void> upload(@Body File file);
 
-    @DELETE("/memos/files/delete/{id}")
-    Call<Void> deleteFile(@Path("id") long id);
+    @DELETE("/memos/files/deleteByMemoId/{memoId}")
+    Call<Void> deleteFileByMemoId(@Path("memoId") long memoId);
 
-    @PUT("/memos/files/update/{id}")
-    Call<Void> updateFile(@Path("id") long id, @Body File file);
+    @PUT("/memos/files/updateByMemoId/{memoId}")
+    Call<Void> updateFileByMemoId(@Path("memoId") long memoId, @Body File file);
 }
