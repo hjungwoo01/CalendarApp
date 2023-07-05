@@ -179,8 +179,12 @@ public class MemoDetailsActivity extends AppCompatActivity {
                             Intent data = result.getData();
                             assert data != null;
                             Uri uri = data.getData();
+                            selectedImageView.setVisibility(View.VISIBLE);
                             selectedFileType[0] = getContentResolver().getType(uri);
                             fileDataRef.set(readFileData(uri));
+                            Glide.with(MemoDetailsActivity.this)
+                                    .load(fileDataRef.get())
+                                    .into(selectedImageView);
                         }
                     }
                 });
