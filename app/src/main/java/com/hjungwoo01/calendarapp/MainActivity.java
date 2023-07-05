@@ -70,15 +70,14 @@ public class MainActivity extends AppCompatActivity implements CalendarAdapter.O
                 .enqueue(new Callback<List<Event>>() {
             @Override
             public void onResponse(@NonNull Call<List<Event>> call, @NonNull Response<List<Event>> response) {
-                if (response.isSuccessful()) {
+                if(response.isSuccessful()) {
                     Event.setEventsList(response.body());
-                    setMonthView();
                 } else {
                     Toast.makeText(MainActivity.this, "Empty calendar.", Toast.LENGTH_SHORT).show();
                     Event.setEventsList(new ArrayList<>());
-                    RepeatedEvents.setRepeatedEventsMap(new HashMap<>());
-                    setMonthView();
                 }
+                RepeatedEvents.setRepeatedEventsMap(new HashMap<>());
+                setMonthView();
             }
 
             @Override

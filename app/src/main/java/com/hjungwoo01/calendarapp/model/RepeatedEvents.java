@@ -37,7 +37,7 @@ public class RepeatedEvents {
         LocalDate endDate = getRepeatedDate(baseEvent.getEndDate(), repeatPosition);
         LocalDate repeatEndDate = baseEvent.getRepeatEndDate();
 
-        while (startDate.isBefore(repeatEndDate)) {
+        while (startDate.isBefore(repeatEndDate) || startDate.isEqual(repeatEndDate)) {
             Event recurringEvent = new Event(
                     baseEvent.getEventName(),
                     baseEvent.getEventMemo(),
