@@ -5,12 +5,10 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -70,7 +68,6 @@ public class MemoDetailsActivity extends AppCompatActivity {
     private Button buttonSelectFile;
     private MaterialButton updateButton;
     private MaterialButton deleteButton;
-    private Bitmap bitmap;
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private final AtomicReference<byte[]> fileDataRef = new AtomicReference<>(null);
     private final String[] selectedFileType = new String[1];
@@ -84,6 +81,7 @@ public class MemoDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_memo_details);
         initWidgets();
+        selectedImageView.setVisibility(View.GONE);
 
         boolean hideButtons = getIntent().getBooleanExtra("hideButtons", false);
         if(hideButtons) {
@@ -183,12 +181,6 @@ public class MemoDetailsActivity extends AppCompatActivity {
                             Uri uri = data.getData();
                             selectedFileType[0] = getContentResolver().getType(uri);
                             fileDataRef.set(readFileData(uri));
-                            try {
-                                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                                selectedImageView.setImageBitmap(bitmap);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
                         }
                     }
                 });
@@ -314,6 +306,7 @@ public class MemoDetailsActivity extends AppCompatActivity {
         if (inputStream == null) {
             throw new IOException("Invalid input stream");
         }
+        selectedImageView.setVisibility(View.VISIBLE);
         byte[] byteArray = getByteArrayFromInputStream(inputStream);
         Glide.with(this)
                 .load(byteArray)
