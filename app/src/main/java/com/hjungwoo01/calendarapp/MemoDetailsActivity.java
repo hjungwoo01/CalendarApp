@@ -68,6 +68,8 @@ public class MemoDetailsActivity extends AppCompatActivity {
     private String receiversString;
     private ImageView selectedImageView;
     private Button buttonSelectFile;
+    private MaterialButton updateButton;
+    private MaterialButton deleteButton;
     private Bitmap bitmap;
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private final AtomicReference<byte[]> fileDataRef = new AtomicReference<>(null);
@@ -82,6 +84,13 @@ public class MemoDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_memo_details);
         initWidgets();
+
+        boolean hideButtons = getIntent().getBooleanExtra("hideButtons", false);
+        if(hideButtons) {
+            buttonSelectFile.setVisibility(View.GONE);
+            updateButton.setVisibility(View.GONE);
+            deleteButton.setVisibility(View.GONE);
+        }
 
         long memoId = getIntent().getLongExtra("memoId", -1);
 
@@ -104,12 +113,12 @@ public class MemoDetailsActivity extends AppCompatActivity {
         inputEditMemo = findViewById(R.id.form_textFieldMemo);
         selectedImageView = findViewById(R.id.selectedImageView);
         buttonSelectFile = findViewById(R.id.select_file);
+        deleteButton = findViewById(R.id.form_buttonDelete);
+        updateButton = findViewById(R.id.form_buttonUpdate);
         selectedReceivers = new boolean[receiversArray.length];
     }
 
     private void initializeComponents(long memoId) {
-        MaterialButton updateButton = findViewById(R.id.form_buttonUpdate);
-
         receiversTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -237,7 +246,6 @@ public class MemoDetailsActivity extends AppCompatActivity {
             }
         });
 
-        MaterialButton deleteButton = findViewById(R.id.form_buttonDelete);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

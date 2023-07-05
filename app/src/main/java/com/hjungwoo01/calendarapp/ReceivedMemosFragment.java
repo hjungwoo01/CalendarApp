@@ -111,6 +111,7 @@ public class ReceivedMemosFragment extends Fragment {
     }
     private void showMemoDetails(Memo memo) {
         Intent intent = new Intent(getContext(), MemoDetailsActivity.class);
+        intent.putExtra("hideButtons", true);
         intent.putExtra("memoId", memo.getId());
         startActivity(intent);
     }
