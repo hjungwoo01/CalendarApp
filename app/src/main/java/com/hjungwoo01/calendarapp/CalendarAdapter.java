@@ -30,10 +30,15 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = inflater.inflate(R.layout.calendar_cell, parent, false);
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-        if(days.size() > 15) //month view
-            layoutParams.height = (int) (parent.getHeight() * 0.166666666);
-        else // week view
-            layoutParams.height = parent.getHeight();
+
+        int height = parent.getHeight();
+        int numRows = (int) Math.ceil(days.size() / 7.0);
+
+        if (days.size() > 15) {
+            layoutParams.height = height / numRows;
+        } else {
+            layoutParams.height = height;
+        }
 
         return new CalendarViewHolder(view, onItemListener, days);
     }
@@ -53,9 +58,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
             }
 
             if (hasEventOnDate(date)) {
-                holder.eventIndicator.setVisibility(View.VISIBLE); // Show event indicator for dates with events
+                holder.eventIndicator.setVisibility(View.VISIBLE);
             } else {
-                holder.eventIndicator.setVisibility(View.INVISIBLE); // Hide event indicator for dates without events
+                holder.eventIndicator.setVisibility(View.INVISIBLE);
             }
 
             holder.parentView.setOnClickListener(v -> {
@@ -72,18 +77,15 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
                 LocalDate startDate = event.getStartDate();
                 LocalDate endDate = event.getEndDate();
 
-                // Check if the date matches the original event
                 if ((date.isEqual(startDate) || date.isAfter(startDate)) && date.isBefore(endDate.plusDays(1))) {
                     return true;
                 }
 
-                // Check if the event is a repeating event
                 int repeatPosition = event.getRepeatPosition();
                 if(repeatPosition != 0) {
                     RepeatedEvents repeatedEvents = new RepeatedEvents(event);
                     List<Event> recurringEvents = repeatedEvents.getRecurringEvents();
 
-                    // Check if the date matches any recurring event's repetition
                     for (Event recurringEvent : recurringEvents) {
                         if ((date.isEqual(recurringEvent.getStartDate()) || date.isAfter(recurringEvent.getStartDate())) &&
                                 date.isBefore(recurringEvent.getEndDate().plusDays(1))) {
