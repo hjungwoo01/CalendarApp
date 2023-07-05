@@ -1,10 +1,6 @@
 package com.hjungwoo01.calendarapp.model;
 
-import java.util.Collections;
-import java.util.List;
-
 public class Memo {
-    public static List<Memo> memosList = Collections.emptyList();
     private long id;
     private String owner;
     private String receiver;
@@ -18,6 +14,7 @@ public class Memo {
     public void setOwner(String owner) {
         this.owner = owner;
     }
+    public String getOwner() { return this.owner; }
 
     public void setReceiver(String receiver) { this.receiver = receiver; }
     public String getReceiver() { return this.receiver; }

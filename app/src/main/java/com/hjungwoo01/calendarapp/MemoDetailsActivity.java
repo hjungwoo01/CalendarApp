@@ -57,6 +57,8 @@ import retrofit2.Response;
 public class MemoDetailsActivity extends AppCompatActivity {
     private static final int REQUEST_FILE_PERMISSION = 1;
     private Memo memo;
+    private TextView senderLabel;
+    private TextView senderTextView;
     private TextView receiversTextView;
     private TextInputEditText inputEditMemoName;
     private TextInputEditText inputEditMemo;
@@ -90,7 +92,15 @@ public class MemoDetailsActivity extends AppCompatActivity {
             deleteButton.setVisibility(View.GONE);
         }
 
+        boolean fromSentFragment = getIntent().getBooleanExtra("fromSentFragment", false);
+        if(fromSentFragment) {
+            senderLabel.setVisibility(View.GONE);
+            senderTextView.setVisibility(View.GONE);
+        }
+
         long memoId = getIntent().getLongExtra("memoId", -1);
+        String owner = getIntent().getStringExtra("memoSender");
+        senderTextView.setText(owner);
 
         if (memoId != -1) {
             retrofitService = new RetrofitService();
@@ -106,6 +116,8 @@ public class MemoDetailsActivity extends AppCompatActivity {
     }
 
     private void initWidgets() {
+        senderLabel = findViewById(R.id.form_senderLabel);
+        senderTextView = findViewById(R.id.form_senderTextView);
         receiversTextView = findViewById(R.id.form_receiversTextView);
         inputEditMemoName = findViewById(R.id.form_textFieldMemoName);
         inputEditMemo = findViewById(R.id.form_textFieldMemo);

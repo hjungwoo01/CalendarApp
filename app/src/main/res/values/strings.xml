@@ -38,4 +38,6 @@
     <string name="select_file">Select File</string>
     <string name="no_file_selected">No File Selected</string>
     <string name="new_memo">New Memo</string>
+    <string name="from">FROM:   </string>
+    <string name="to">TO:   </string>
 </resources>

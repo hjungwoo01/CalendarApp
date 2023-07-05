@@ -50,15 +50,49 @@
         android:orientation="vertical"
         android:layout_marginTop="80dp">
 
-        <TextView
-            android:id="@+id/form_receiversTextView"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:drawable/editbox_background"
-            android:drawablePadding="18dp"
-            android:hint="@string/send_memo_to"
-            android:padding="12dp"
-            app:drawableRightCompat="@android:drawable/arrow_down_float" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/form_senderLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/from"
+                android:textSize="18sp"/>
+
+            <TextView
+                android:id="@+id/form_senderTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:layout_marginBottom="5dp"
+                android:text="SENDER"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/form_receiverLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/to"
+                android:textSize="18sp"/>
+
+            <TextView
+                android:id="@+id/form_receiversTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:drawable/editbox_background"
+                android:drawablePadding="18dp"
+                android:hint="@string/send_memo_to"
+                android:padding="12dp"
+                app:drawableRightCompat="@android:drawable/arrow_down_float" />
+        </LinearLayout>
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/form_textFieldMemoName"
@@ -81,7 +115,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="240dp"
+        android:layout_marginTop="280dp"
         android:gravity="center"
         android:orientation="vertical">
 
