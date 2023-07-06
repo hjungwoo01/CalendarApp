@@ -26,9 +26,12 @@ import java.util.Comparator;
 import java.util.List;
 
 public class ReceivedMemosFragment extends Fragment {
-    private RecyclerView receivedMemosRecyclerView;
-    private List<Memo> receivedMemoList;
-    private MemoRecyclerAdapter receivedMemoAdapter;
+    private RecyclerView readMemosRecyclerView;
+    private RecyclerView unreadMemosRecyclerView;
+    private List<Memo> readMemoList;
+    private List<Memo> unreadMemoList;
+    private MemoRecyclerAdapter readMemoAdapter;
+    private MemoRecyclerAdapter unreadMemoAdapter;
     private View view;
 
     @Override
@@ -36,29 +39,63 @@ public class ReceivedMemosFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_received_memos, container, false);
         initWidgets();
         fetchMemos();
-        receivedMemoAdapter.setOnItemClickListener(new MemoRecyclerAdapter.OnItemClickListener() {
+        readMemoAdapter.setOnItemClickListener(new MemoRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Memo memo) {
+                showMemoDetails(memo);
+            }
+        });
+        unreadMemoAdapter.setOnItemClickListener(new MemoRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Memo memo) {
+                RetrofitService retrofitService = new RetrofitService();
+                MemoApi memoApi = retrofitService.getRetrofit().create(MemoApi.class);
+                if(memo.getReadReceivers() != null) {
+                    memo.setReadReceivers(memo.getReadReceivers() + OwnerSelectionActivity.getSelectedOwner() + ",");
+                } else {
+                    memo.setReadReceivers(OwnerSelectionActivity.getSelectedOwner() + ",");
+                }
+                memoApi.updateMemo(memo.getId(), memo).enqueue(new Callback<Memo>() {
+                    @Override
+                    public void onResponse(@NonNull Call<Memo> call, @NonNull Response<Memo> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(getContext(), "Memo read.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(), "Memo read unsuccessful.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<Memo> call, @NonNull Throwable t) {
+                        Toast.makeText(getContext(), "Failed to update memo.", Toast.LENGTH_SHORT).show();
+                    }
+                });
                 showMemoDetails(memo);
             }
         });
         return view;
     }
     private void initWidgets() {
-        receivedMemosRecyclerView = view.findViewById(R.id.receivedMemosRecyclerView);
-        receivedMemosRecyclerView.setHasFixedSize(true);
-        receivedMemosRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        readMemosRecyclerView = view.findViewById(R.id.readMemosRecyclerView);
+        unreadMemosRecyclerView = view.findViewById(R.id.unreadMemosRecyclerView);
+        readMemosRecyclerView.setHasFixedSize(true);
+        unreadMemosRecyclerView.setHasFixedSize(true);
+        readMemosRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        unreadMemosRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
-        receivedMemoList = new ArrayList<>();
-        receivedMemoAdapter = new MemoRecyclerAdapter(receivedMemoList);
-        receivedMemosRecyclerView.setAdapter(receivedMemoAdapter);
+        readMemoList = new ArrayList<>();
+        unreadMemoList = new ArrayList<>();
+        readMemoAdapter = new MemoRecyclerAdapter(readMemoList);
+        unreadMemoAdapter = new MemoRecyclerAdapter(unreadMemoList);
+        readMemosRecyclerView.setAdapter(readMemoAdapter);
+        unreadMemosRecyclerView.setAdapter(unreadMemoAdapter);
     }
 
     private void fetchMemos() {
         RetrofitService retrofitService = new RetrofitService();
         MemoApi memoApi = retrofitService.getRetrofit().create(MemoApi.class);
-
-        memoApi.getMemosByReceiver(OwnerSelectionActivity.getSelectedOwner())
+        String selectedOwner = OwnerSelectionActivity.getSelectedOwner();
+        memoApi.getMemosByReceiver(selectedOwner)
                 .enqueue(new Callback<List<Memo>>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -66,19 +103,33 @@ public class ReceivedMemosFragment extends Fragment {
                 if (response.isSuccessful()) {
                     List<Memo> newMemoList = response.body();
                     if (newMemoList != null) {
-                        receivedMemoList.clear();
-                        receivedMemoList.addAll(sortMemos(newMemoList));
-                        receivedMemoAdapter.notifyDataSetChanged();
+                        readMemoList.clear();
+                        unreadMemoList.clear();
+                        for(Memo memo: newMemoList) {
+                            String readReceivers = memo.getReadReceivers();
+                            if(readReceivers != null && readReceivers.contains(selectedOwner)) {
+                                readMemoList.add(memo);
+                            } else {
+                                unreadMemoList.add(memo);
+                            }
+                        }
+
+                        readMemoList = sortMemos(readMemoList);
+                        unreadMemoList = sortMemos(unreadMemoList);
+                        readMemoAdapter.notifyDataSetChanged();
+                        unreadMemoAdapter.notifyDataSetChanged();
                     }
                 } else {
                     Toast.makeText(getContext(), "No memos.", Toast.LENGTH_SHORT).show();
-                    receivedMemoList.clear();
-                    receivedMemoAdapter.notifyDataSetChanged();
+                    readMemoList.clear();
+                    unreadMemoList.clear();
+                    readMemoAdapter.notifyDataSetChanged();
+                    unreadMemoAdapter.notifyDataSetChanged();
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Memo>> call, Throwable t) {
+            public void onFailure(@NonNull Call<List<Memo>> call, @NonNull Throwable t) {
                 Toast.makeText(getContext(), "Failed to fetch memos: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

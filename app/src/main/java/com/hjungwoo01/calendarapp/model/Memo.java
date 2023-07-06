@@ -7,6 +7,7 @@ public class Memo {
     private String memoName;
     private String memo;
     private String date;
+    private String readReceivers;
 
     public long getId() { return this.id; }
     public void setId(long id) { this.id = id; }
@@ -43,5 +44,13 @@ public class Memo {
 
     public int getCreatedMinute() {
         return Integer.parseInt(this.date.substring(10,12));
+    }
+
+    public String getReadReceivers() {
+        return this.readReceivers;
+    }
+
+    public void setReadReceivers(String readReceivers) {
+        this.readReceivers = readReceivers;
     }
 }

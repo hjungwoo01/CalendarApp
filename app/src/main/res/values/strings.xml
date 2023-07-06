@@ -40,4 +40,6 @@
     <string name="new_memo">New Memo</string>
     <string name="from">FROM:   </string>
     <string name="to">TO:   </string>
+    <string name="unread">Unread</string>
+    <string name="read">Read</string>
 </resources>
