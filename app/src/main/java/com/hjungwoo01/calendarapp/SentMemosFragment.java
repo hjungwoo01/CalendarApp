@@ -114,7 +114,6 @@ public class SentMemosFragment extends Fragment {
 
     private void showMemoDetails(Memo memo) {
         Intent intent = new Intent(getContext(), MemoDetailsActivity.class);
-        intent.putExtra("fromSentFragment", true);
         intent.putExtra("memoId", memo.getId());
         startActivity(intent);
     }

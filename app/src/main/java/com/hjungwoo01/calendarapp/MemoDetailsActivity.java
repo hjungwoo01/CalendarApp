@@ -90,10 +90,16 @@ public class MemoDetailsActivity extends AppCompatActivity {
             buttonSelectFile.setVisibility(View.GONE);
             updateButton.setVisibility(View.GONE);
             deleteButton.setVisibility(View.GONE);
-        }
 
-        boolean fromSentFragment = getIntent().getBooleanExtra("fromSentFragment", false);
-        if(fromSentFragment) {
+            receiversTextView.setEnabled(false);
+            inputEditMemoName.setEnabled(false);
+            inputEditMemo.setEnabled(false);
+
+            int black = ContextCompat.getColor(this, R.color.black);
+            receiversTextView.setTextColor(black);
+            inputEditMemoName.setTextColor(black);
+            inputEditMemo.setTextColor(black);
+        } else {
             senderLabel.setVisibility(View.GONE);
             senderTextView.setVisibility(View.GONE);
         }
