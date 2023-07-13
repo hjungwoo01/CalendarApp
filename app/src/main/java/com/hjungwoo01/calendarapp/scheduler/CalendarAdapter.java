@@ -1,4 +1,4 @@
-package com.hjungwoo01.calendarapp;
+package com.hjungwoo01.calendarapp.scheduler;
 
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.hjungwoo01.calendarapp.R;
 import com.hjungwoo01.calendarapp.model.Event;
 import com.hjungwoo01.calendarapp.model.RepeatedEvents;
 

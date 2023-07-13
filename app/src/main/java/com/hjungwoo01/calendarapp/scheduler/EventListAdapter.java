@@ -1,4 +1,4 @@
-package com.hjungwoo01.calendarapp;
+package com.hjungwoo01.calendarapp.scheduler;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.hjungwoo01.calendarapp.R;
 import com.hjungwoo01.calendarapp.model.Event;
 
 import java.util.List;

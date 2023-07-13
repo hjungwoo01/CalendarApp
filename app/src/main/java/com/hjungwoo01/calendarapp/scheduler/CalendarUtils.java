@@ -1,4 +1,4 @@
-package com.hjungwoo01.calendarapp;
+package com.hjungwoo01.calendarapp.scheduler;
 
 import java.time.LocalDate;
 import java.time.YearMonth;

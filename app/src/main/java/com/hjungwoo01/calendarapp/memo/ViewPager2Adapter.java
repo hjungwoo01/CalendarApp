@@ -1,9 +1,12 @@
-package com.hjungwoo01.calendarapp;
+package com.hjungwoo01.calendarapp.memo;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
+
+import com.hjungwoo01.calendarapp.memo.ReceivedMemosFragment;
+import com.hjungwoo01.calendarapp.memo.SentMemosFragment;
 
 public class ViewPager2Adapter extends FragmentStateAdapter {
 

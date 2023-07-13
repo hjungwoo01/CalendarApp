@@ -1,4 +1,4 @@
-package com.hjungwoo01.calendarapp;
+package com.hjungwoo01.calendarapp.memo;
 
 import android.Manifest;
 import android.app.Activity;
@@ -31,6 +31,8 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.hjungwoo01.calendarapp.OwnerSelectionActivity;
+import com.hjungwoo01.calendarapp.R;
 import com.hjungwoo01.calendarapp.model.File;
 import com.hjungwoo01.calendarapp.model.Memo;
 import com.hjungwoo01.calendarapp.model.User;

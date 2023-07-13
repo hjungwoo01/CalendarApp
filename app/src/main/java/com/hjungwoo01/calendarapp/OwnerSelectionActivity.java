@@ -12,9 +12,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.hjungwoo01.calendarapp.memo.MemoActivity;
 import com.hjungwoo01.calendarapp.model.User;
 import com.hjungwoo01.calendarapp.retrofit.RetrofitService;
 import com.hjungwoo01.calendarapp.retrofit.UserApi;
+import com.hjungwoo01.calendarapp.scheduler.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,6 +111,10 @@ public class OwnerSelectionActivity extends AppCompatActivity implements Adapter
 
     public static String getSelectedOwner() {
         return selectedOwner;
+    }
+
+    public void chat(View view) {
+        startActivity(new Intent(OwnerSelectionActivity.this, ChatGPTActivity.class));
     }
 
 }

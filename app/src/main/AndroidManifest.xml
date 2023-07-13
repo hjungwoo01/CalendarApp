@@ -21,13 +21,14 @@
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.CalendarApp"
         tools:targetApi="31">
-        <activity android:name=".EventActivity" />
-        <activity android:name=".EventDetailsActivity"/>
-        <activity android:name=".EventListActivity"/>
-        <activity android:name=".MainActivity"/>
-        <activity android:name=".MemoActivity"/>
-        <activity android:name=".MemoDetailsActivity"/>
-        <activity android:name=".NewMemoActivity"
+        <activity android:name=".scheduler.EventActivity" />
+        <activity android:name=".scheduler.EventDetailsActivity"/>
+        <activity android:name=".scheduler.EventListActivity"/>
+        <activity android:name=".scheduler.MainActivity"/>
+        <activity android:name=".memo.MemoActivity"/>
+        <activity android:name=".memo.MemoDetailsActivity"/>
+        <activity android:name=".ChatGPTActivity"/>
+        <activity android:name=".memo.NewMemoActivity"
             android:windowSoftInputMode="adjustResize" />
 
         <activity

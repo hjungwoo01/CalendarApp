@@ -1,4 +1,4 @@
-package com.hjungwoo01.calendarapp;
+package com.hjungwoo01.calendarapp.scheduler;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.hjungwoo01.calendarapp.R;
 import com.hjungwoo01.calendarapp.model.Event;
 import com.hjungwoo01.calendarapp.model.RepeatedEvents;
 

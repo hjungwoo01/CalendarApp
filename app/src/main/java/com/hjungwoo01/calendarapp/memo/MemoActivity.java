@@ -1,4 +1,4 @@
-package com.hjungwoo01.calendarapp;
+package com.hjungwoo01.calendarapp.memo;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
+import com.hjungwoo01.calendarapp.OwnerSelectionActivity;
+import com.hjungwoo01.calendarapp.R;
 
 import java.util.Objects;
 

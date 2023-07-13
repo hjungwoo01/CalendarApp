@@ -1,4 +1,4 @@
-package com.hjungwoo01.calendarapp;
+package com.hjungwoo01.calendarapp.memo;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -13,6 +13,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.hjungwoo01.calendarapp.OwnerSelectionActivity;
+import com.hjungwoo01.calendarapp.R;
+import com.hjungwoo01.calendarapp.memo.MemoDetailsActivity;
+import com.hjungwoo01.calendarapp.memo.MemoRecyclerAdapter;
 import com.hjungwoo01.calendarapp.model.Memo;
 import com.hjungwoo01.calendarapp.retrofit.MemoApi;
 import com.hjungwoo01.calendarapp.retrofit.RetrofitService;

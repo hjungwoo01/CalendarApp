@@ -1,4 +1,4 @@
-package com.hjungwoo01.calendarapp;
+package com.hjungwoo01.calendarapp.scheduler;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -24,6 +24,8 @@ import androidx.appcompat.widget.SwitchCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.hjungwoo01.calendarapp.OwnerSelectionActivity;
+import com.hjungwoo01.calendarapp.R;
 import com.hjungwoo01.calendarapp.model.Event;
 import com.hjungwoo01.calendarapp.retrofit.EventApi;
 import com.hjungwoo01.calendarapp.retrofit.RetrofitService;

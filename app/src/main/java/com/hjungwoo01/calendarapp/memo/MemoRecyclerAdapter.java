@@ -1,4 +1,4 @@
-package com.hjungwoo01.calendarapp;
+package com.hjungwoo01.calendarapp.memo;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.hjungwoo01.calendarapp.R;
 import com.hjungwoo01.calendarapp.model.Memo;
 
 import java.util.List;

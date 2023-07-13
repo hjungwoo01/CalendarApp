@@ -1,4 +1,4 @@
-package com.hjungwoo01.calendarapp;
+package com.hjungwoo01.calendarapp.scheduler;
 
 import android.view.View;
 import android.widget.TextView;
@@ -7,6 +7,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.hjungwoo01.calendarapp.R;
+import com.hjungwoo01.calendarapp.scheduler.CalendarAdapter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

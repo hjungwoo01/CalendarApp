@@ -1,4 +1,4 @@
-package com.hjungwoo01.calendarapp;
+package com.hjungwoo01.calendarapp.scheduler;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,9 +19,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-import static com.hjungwoo01.calendarapp.CalendarUtils.daysInMonthArray;
-import static com.hjungwoo01.calendarapp.CalendarUtils.monthYearFromDate;
+import static com.hjungwoo01.calendarapp.scheduler.CalendarUtils.daysInMonthArray;
+import static com.hjungwoo01.calendarapp.scheduler.CalendarUtils.monthYearFromDate;
 
+import com.hjungwoo01.calendarapp.OwnerSelectionActivity;
+import com.hjungwoo01.calendarapp.R;
 import com.hjungwoo01.calendarapp.model.Event;
 import com.hjungwoo01.calendarapp.model.RepeatedEvents;
 import com.hjungwoo01.calendarapp.retrofit.EventApi;
