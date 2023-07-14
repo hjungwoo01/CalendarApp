@@ -5,6 +5,10 @@ import java.io.Serializable;
 public class Message implements Serializable {
     String role;
     String content;
+    public Message(String role, String content) {
+        this.role = role;
+        this.content = content;
+    }
 
     public String getRole() {
         return role;
