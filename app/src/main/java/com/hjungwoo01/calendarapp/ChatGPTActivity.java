@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -24,12 +25,19 @@ import com.hjungwoo01.calendarapp.open_ai.data.Request;
 import com.hjungwoo01.calendarapp.retrofit.EventApi;
 import com.hjungwoo01.calendarapp.retrofit.RetrofitService;
 import com.hjungwoo01.calendarapp.scheduler.EventActivity;
+import com.hjungwoo01.calendarapp.scheduler.EventDetailsActivity;
+import com.hjungwoo01.calendarapp.scheduler.MainActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -41,7 +49,7 @@ public class ChatGPTActivity extends AppCompatActivity {
     private EditText etText;
     private RecyclerView recyclerView;
     private ConversationAdapter recyclerAdapter;
-
+    private List<Event> events = Collections.emptyList();
     private List<Message> messages;
 
     @Override
@@ -55,7 +63,7 @@ public class ChatGPTActivity extends AppCompatActivity {
         String contentSys = """
                 당신은 일정을 관리하는 챗봇입니다.
                 당신은 일정 추가, 조회, 변경, 삭제를 할수있습니다. 인사말은 짧고 간결하게 뭘 할수있는지 말해줍니다.
-                아래의 triple backticks에는 당신이 user의 대답을 분석하여 답변과 함께 문장 끝에 작성해야하는 JSON포맷입니다. '//'는 구분자입니다.\s
+                아래의 triple backticks에는 당신이 user의 대답을 분석하여 답변과 함께 문장 끝에 작성해야하는 JSON포맷입니다. '//'는 구분자입니다.
                 ```
                 //{'completion' : '0', 'intent': 'create', 'scheduler': {'eventName': 'Event Name', 'eventMemo': 'Event Memo', 'eventStart': '202307130000', 'eventEnd': '202307132359', 'eventRepeat': 'Never', 'eventEndRepeat': '20230713'}}
                 ```
@@ -63,7 +71,7 @@ public class ChatGPTActivity extends AppCompatActivity {
                 - 해당 JSON은 'intent'와 'scheduler'의 두가지 key값을 갖습니다.
                 - 'intent' key는 'create', 'read', 'update', 'delete'의 value들을 가질 수 있으며, 당신이 데이터베이스를 처리하기 위해 사용하는 쿼리 형식의 의미를 가집니다.
                 - 'completion' key는 '0', '1'의 values들을 가질 수 있으며, 'completion' key는 사용자가 현재 요청한 작업의 진행상태를 나타냅니다. 아직 진행 중이라면 '0'을, 완료되었다면 '1'의 value를 가집니다.
-                - 'scheduler' key는 또하나의 하위 Json을 value로 갖습니다. 해당 하위 Json에는 'eventName', 'eventMemo', 'eventStart', 'eventEnd', 'eventRepeat', 'eventEndRepeat'의 key들을 갖습니다. 6개의 key는 당신이 반드시 user에게 물어보면서 각 key값에 대한 value에 대한 정보를 확보해야합니다.\s
+                - 'scheduler' key는 또하나의 하위 Json을 value로 갖습니다. 해당 하위 Json에는 'eventName', 'eventMemo', 'eventStart', 'eventEnd', 'eventRepeat', 'eventEndRepeat'의 key들을 갖습니다. 6개의 key는 당신이 반드시 user에게 물어보면서 각 key값에 대한 value에 대한 정보를 확보해야합니다.
                                 
                 JSON포맷을 사용하면서 답변하는 경우 아래의 Angle brackets를 참고합니다.
                 <
@@ -74,8 +82,10 @@ public class ChatGPTActivity extends AppCompatActivity {
                 assistant: '2023년 7월 15일 10시부터 12시까지 회의 이시군요. 일정에 대한 메모가 있을까요?//{'completion' : '0', 'intent': 'create', 'scheduler': {'eventName': '회의', 'eventMemo': 'None', 'eventStart': '202307151000', 'eventEnd': '202307151200', 'eventRepeat': 'Never', 'eventEndRepeat': '20230713'}}',
                 assistant: '이 일정은 반복되는 일정인가요?//{'completion' : '0', 'intent': 'create', 'scheduler': {'eventName': '회의', 'eventMemo': 'None', 'eventStart': '202307151000', 'eventEnd': '202307151200', 'eventRepeat': 'Never', 'eventEndRepeat': '20230713'}}',
                 assistant: '추가로 다른 요청사항이 있나요?//{'completion' : '0', 'intent': 'create', 'scheduler': {'eventName': '회의', 'eventMemo': 'None', 'eventStart': '202307151000', 'eventEnd': '202307151200', 'eventRepeat': 'Never', 'eventEndRepeat': '20230713'}}',
-                assistant: '알겠습니다. 더 도울일이 없다면 대화를 종료하겠습니다.//{'completion' : ' 1', 'intent': 'create', 'scheduler': {'eventName': '회의', 'eventMemo': 'None', 'eventStart': '202307151000', 'eventEnd': '202307151200', 'eventRepeat': 'Never', 'eventEndRepeat': '20230713'}}'
+                assistant: '알겠습니다. 더 도울일이 없다면 대화를 종료하겠습니다.//{'completion' : ' 1', 'intent': 'create', 'scheduler': {'eventName': '회의', 'eventMemo': 'None', 'eventStart': '202307151000', 'eventEnd': '202307151200', 'eventRepeat': 'Never', 'eventEndRepeat': '20230713'}}',
+                assistant: '2023년 7월 14일 일정을 조회해드릴게요.////{'completion' : ' 1', 'intent': 'read', 'scheduler': {'eventName': 'null', 'eventMemo': 'null', 'eventStart': '202307140000', 'eventEnd': '202307142359', 'eventRepeat': 'null', 'eventEndRepeat': 'null'}}'
                 >
+                              
                                 
                 답변하는 과정은 다음 아래의 triple dashes에 있는 4가지 절차를 따라주세요.
                 ---
@@ -105,16 +115,17 @@ public class ChatGPTActivity extends AppCompatActivity {
 
         txStatus = findViewById(R.id.tx_status);
         etText = findViewById(R.id.tx_ai_text);
-        String fixed = "//<답변 시 사용자의 대화의 맥락에 맞는 말과 항상 끝에 JSON포맷을 유지할 것!>";
         Button send = findViewById(R.id.bt_ai_send);
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String text = etText.getText().toString();
-                if(!TextUtils.isEmpty(text + fixed))
+                if(!TextUtils.isEmpty(text)) {
                     OpenAI(text);
-                else
+                }
+                else {
                     Toast.makeText(getApplicationContext(), "입력해주세요.", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -132,7 +143,8 @@ public class ChatGPTActivity extends AppCompatActivity {
     private void OpenAI(String query) {
         Message userMsg = new Message("user", query);
         messages.add(userMsg);
-        userMsg.setContent(query);
+        String fixed = "//<답변 시 사용자의 대화의 맥락에 맞는 말과 항상 끝에 JSON포맷을 유지할 것!>";
+        userMsg.setContent(query + fixed);
 
         Request request = new Request();
         request.setModel("gpt-3.5-turbo-0613");
@@ -147,53 +159,148 @@ public class ChatGPTActivity extends AppCompatActivity {
         openAiAPI.chat_gpt(request, new RetrofitCallback() {
             @Override
             public void onSuccess(int code, Object receivedData) {
+                etText.setText("");
                 OpenAiResponse response = (OpenAiResponse) receivedData;
                 if(response != null) {
                     Message aiMsg = response.getChoices().get(0).getMessage();
                     String[] inputs = aiMsg.getContent().split("//");
-                    Message newMessage = new Message(aiMsg.getRole(), inputs[0]);
-                    messages.add(newMessage);
+//                    StringBuilder message = new StringBuilder(inputs[0]);
+                    StringBuilder message = new StringBuilder(aiMsg.getContent());
+                    aiMsg.setContent(message.toString());
                     if(aiMsg.getRole().equals("assistant")) {
                         if (inputs.length == 2) {
                             RetrofitService retrofitService = new RetrofitService();
                             EventApi eventApi = retrofitService.getRetrofit().create(EventApi.class);
                             try {
                                 JSONObject jsonObject = new JSONObject(inputs[1]);
-                                String intent = jsonObject.optString("intent");
-                                if (intent.equals("create")) {
-                                    JSONObject schedulerObj = jsonObject.optJSONObject("scheduler");
-                                    if (schedulerObj != null) {
-                                        Event event = new Event();
-                                        String eventName = schedulerObj.getString("eventName");
-                                        String eventMemo = schedulerObj.optString("eventMemo");
-                                        String eventStart = schedulerObj.getString("eventStart");
-                                        String eventEnd = schedulerObj.getString("eventEnd");
-                                        String eventRepeat = schedulerObj.optString("eventRepeat");
-                                        String eventEndRepeat = schedulerObj.optString("eventEndRepeat");
+                                String completion = jsonObject.getString("completion");
+                                String intent = jsonObject.getString("intent");
+                                if (completion.equals("1")) {
+                                    switch (intent) {
+                                        case "create": {
+                                            JSONObject schedulerObj = jsonObject.optJSONObject("scheduler");
+                                            if (schedulerObj != null) {
+                                                String eventName = schedulerObj.getString("eventName");
+                                                String eventMemo = schedulerObj.optString("eventMemo");
+                                                String eventStart = schedulerObj.getString("eventStart");
+                                                String eventEnd = schedulerObj.getString("eventEnd");
+                                                String eventRepeat = schedulerObj.optString("eventRepeat");
+                                                String eventEndRepeat = schedulerObj.optString("eventEndRepeat");
 
-                                        event.setOwner("Person1");
-                                        event.setEventName(eventName);
-                                        event.setEventMemo(eventMemo);
-                                        event.setEventStart(eventStart);
-                                        event.setEventEnd(eventEnd);
-                                        event.setEventRepeat(eventRepeat);
-                                        event.setEventEndRepeat(eventEndRepeat);
-                                        eventApi.save(event).enqueue(new Callback<Void>() {
-                                            @Override
-                                            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-                                                if (response.isSuccessful()) {
-                                                    Toast.makeText(ChatGPTActivity.this, "Save successful.", Toast.LENGTH_SHORT).show();
-                                                } else {
-                                                    Toast.makeText(ChatGPTActivity.this, "Save failed.", Toast.LENGTH_SHORT).show();
+                                                Event event = new Event();
+                                                event.setOwner("Person1");
+                                                event.setEventName(eventName);
+                                                event.setEventMemo(eventMemo);
+                                                event.setEventStart(eventStart);
+                                                event.setEventEnd(eventEnd);
+                                                event.setEventRepeat(eventRepeat);
+                                                event.setEventEndRepeat(eventEndRepeat);
+                                                eventApi.save(event).enqueue(new Callback<Void>() {
+                                                    @Override
+                                                    public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                                                        if (response.isSuccessful()) {
+                                                            Toast.makeText(ChatGPTActivity.this, "Save successful.", Toast.LENGTH_SHORT).show();
+                                                        } else {
+                                                            Toast.makeText(ChatGPTActivity.this, "Save failed.", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                                                        Toast.makeText(ChatGPTActivity.this, "Save failed.", Toast.LENGTH_SHORT).show();
+                                                        Log.e("ChatGPTActivity", "Error occurred: " + t.getMessage());
+                                                    }
+                                                });
+                                            }
+                                            break;
+                                        }
+                                        case "read": {
+                                            JSONObject schedulerObj = jsonObject.optJSONObject("scheduler");
+                                            if (schedulerObj != null) {
+                                                String startDate = schedulerObj.optString("eventStart").substring(0, 8);
+                                                eventApi.getEventsByOwner("Person1").enqueue(new Callback<List<Event>>() {
+                                                    @Override
+                                                    public void onResponse(@NonNull Call<List<Event>> call, @NonNull Response<List<Event>> response) {
+                                                        if (response.isSuccessful()) {
+                                                            Event.setEventsList(response.body());
+                                                        } else {
+                                                            Toast.makeText(ChatGPTActivity.this, "Failed to fetch events.", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onFailure(@NonNull Call<List<Event>> call, @NonNull Throwable t) {
+                                                        Toast.makeText(ChatGPTActivity.this, "Failed to fetch events.", Toast.LENGTH_SHORT).show();
+                                                        Log.e("ChatGPTActivity", "Error occurred: " + t.getMessage());
+                                                    }
+                                                });
+                                                for (Event e : Event.eventsForDate(parseDate(startDate))) {
+                                                    message.append(e.getEventDetails());
                                                 }
+                                                aiMsg.setContent(message.toString());
                                             }
-
-                                            @Override
-                                            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
-                                                Toast.makeText(ChatGPTActivity.this, "Save failed.", Toast.LENGTH_SHORT).show();
-                                                Log.e("ChatGPTActivity", "Error occurred: " + t.getMessage());
-                                            }
-                                        });
+                                            break;
+                                        }
+//                                        case "update": {
+//                                            JSONObject schedulerObj = jsonObject.optJSONObject("scheduler");
+//                                            if (schedulerObj != null) {
+//                                                String eventName = schedulerObj.getString("eventName");
+//                                                String eventMemo = schedulerObj.optString("eventMemo");
+//                                                String eventStart = schedulerObj.getString("eventStart");
+//                                                String eventEnd = schedulerObj.getString("eventEnd");
+//                                                String eventRepeat = schedulerObj.optString("eventRepeat");
+//                                                String eventEndRepeat = schedulerObj.optString("eventEndRepeat");
+//
+//                                                Event updatedEvent = new Event();
+//                                                updatedEvent.setOwner("Person1");
+//                                                updatedEvent.setEventName(eventName);
+//                                                updatedEvent.setEventMemo(eventMemo);
+//                                                updatedEvent.setEventStart(eventStart);
+//                                                updatedEvent.setEventEnd(eventEnd);
+//                                                updatedEvent.setEventRepeat(eventRepeat);
+//                                                updatedEvent.setEventEndRepeat(eventEndRepeat);
+//
+//                                                eventApi.updateEvent(eventId, updatedEvent).enqueue(new Callback<Void>() {
+//                                                    @Override
+//                                                    public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+//                                                        if (response.isSuccessful()) {
+//                                                            Toast.makeText(ChatGPTActivity.this, "Update successful.", Toast.LENGTH_SHORT).show();
+//                                                        } else {
+//                                                            Toast.makeText(ChatGPTActivity.this, "Update failed.", Toast.LENGTH_SHORT).show();
+//                                                        }
+//                                                    }
+//
+//                                                    @Override
+//                                                    public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+//                                                        Toast.makeText(ChatGPTActivity.this, "Update failed.", Toast.LENGTH_SHORT).show();
+//                                                        Log.e("ChatGPTActivity", "Error occurred: " + t.getMessage());
+//                                                    }
+//                                                });
+//                                            }
+//                                            break;
+//                                        }
+//                                        case "delete": {
+//                                            JSONObject schedulerObj = jsonObject.optJSONObject("scheduler");
+//                                            if (schedulerObj != null) {
+//                                                eventApi.deleteEvent(eventId).enqueue(new Callback<Void>() {
+//                                                    @Override
+//                                                    public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+//                                                        if (response.isSuccessful()) {
+//                                                            Toast.makeText(ChatGPTActivity.this, "Event deleted.", Toast.LENGTH_SHORT).show();
+//                                                        } else {
+//                                                            Toast.makeText(ChatGPTActivity.this, "Failed to delete event.", Toast.LENGTH_SHORT).show();
+//                                                        }
+//                                                    }
+//
+//                                                    @Override
+//                                                    public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+//                                                        Toast.makeText(ChatGPTActivity.this, "Failed to delete event.", Toast.LENGTH_SHORT).show();
+//                                                        Log.e("ChatGPTActivity", "Error occurred: " + t.getMessage());
+//                                                    }
+//                                                });
+//                                            }
+//                                            break;
+//                                        }
                                     }
                                 }
                             } catch (JSONException e) {
@@ -201,6 +308,7 @@ public class ChatGPTActivity extends AppCompatActivity {
                             }
                         }
                     }
+                    messages.add(aiMsg);
                     recyclerAdapter.setConversationList((ArrayList<Message>) messages);
                 }
             }
@@ -215,5 +323,10 @@ public class ChatGPTActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private LocalDate parseDate(String date) throws DateTimeParseException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd", Locale.getDefault());
+        return LocalDate.parse(date, formatter);
     }
 }

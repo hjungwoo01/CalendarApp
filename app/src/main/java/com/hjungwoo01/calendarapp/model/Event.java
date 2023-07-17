@@ -181,6 +181,12 @@ public class Event implements Serializable {
         return makeTwoDigit(this.getEndHour()) + makeTwoDigit(this.getEndMinute());
     }
 
+    public String getEventDetails() {
+        return "\n Event Name: " + getEventName() + "\n Event Memo: " + getEventMemo() +
+                "\n Event Start: " + getEventStart() + "\n Event End: " + getEventEnd() + "\n Event Repeat: " + getEventRepeat() +
+                "\n Event End Repeat: " + getEventEndRepeat();
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
