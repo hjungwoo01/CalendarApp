@@ -182,9 +182,9 @@ public class Event implements Serializable {
     }
 
     public String getEventDetails() {
-        return "\n Event Name: " + getEventName() + "\n Event Memo: " + getEventMemo() +
-                "\n Event Start: " + getEventStart() + "\n Event End: " + getEventEnd() + "\n Event Repeat: " + getEventRepeat() +
-                "\n Event End Repeat: " + getEventEndRepeat();
+        return "\n Event Name: " + getEventName() + " Event Memo: " + getEventMemo() +
+                " Event Start: " + getEventStart() + " Event End: " + getEventEnd() + " Event Repeat: " + getEventRepeat() +
+                " Event End Repeat: " + getEventEndRepeat();
     }
 
     @Override

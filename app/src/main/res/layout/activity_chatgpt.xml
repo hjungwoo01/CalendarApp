@@ -28,14 +28,13 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.2"
-            android:text="send"/>
+            android:text="@string/send"/>
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_ai_history"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.5"/>
+        android:layout_height="wrap_content"/>
 
     <TextView
         android:id="@+id/tx_status"

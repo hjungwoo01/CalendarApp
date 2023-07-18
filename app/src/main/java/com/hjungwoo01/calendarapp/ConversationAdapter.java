@@ -1,5 +1,6 @@
 package com.hjungwoo01.calendarapp;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             holder.onBind(list.get(position));
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setConversationList(ArrayList<Message> list) {
         this.list = list;
         this.notifyDataSetChanged();
@@ -38,8 +40,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         return list.size();
     }
 
-
-    class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         TextView message;
 
         public ViewHolder(@NonNull View itemView) {
@@ -48,7 +49,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         }
 
         void onBind(Message item){
-            message.setText(item.getRole() +" / " + item.getContent());
+            String messageTemplate = itemView.getContext().getString(R.string.message_template);
+            String formattedMessage = String.format(messageTemplate, item.getRole(), item.getContent());
+            message.setText(formattedMessage);
         }
     }
 }
