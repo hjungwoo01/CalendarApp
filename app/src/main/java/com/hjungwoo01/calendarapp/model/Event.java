@@ -210,5 +210,27 @@ public class Event implements Serializable {
                 Objects.equals(eventEndRepeat, other.eventEndRepeat);
     }
 
-
+    @Override
+    public String toString() {
+        StringBuilder json = new StringBuilder();
+        json.append("[");
+        for (int i = 0; i < eventsList.size(); i++) {
+            Event event = eventsList.get(i);
+            json.append("{");
+            json.append("\"id\":").append(event.id).append(",");
+            json.append("\"owner\":\"").append(event.owner).append("\",");
+            json.append("\"eventName\":\"").append(event.eventName).append("\",");
+            json.append("\"eventMemo\":\"").append(event.eventMemo).append("\",");
+            json.append("\"eventStart\":\"").append(event.eventStart).append("\",");
+            json.append("\"eventEnd\":\"").append(event.eventEnd).append("\",");
+            json.append("\"eventRepeat\":\"").append(event.eventRepeat).append("\",");
+            json.append("\"eventEndRepeat\":\"").append(event.eventEndRepeat).append("\"");
+            json.append("}");
+            if (i < eventsList.size() - 1) {
+                json.append(",");
+            }
+        }
+        json.append("]");
+        return json.toString();
+    }
 }
