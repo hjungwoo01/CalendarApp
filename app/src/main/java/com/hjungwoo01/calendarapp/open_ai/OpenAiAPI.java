@@ -2,12 +2,14 @@ package com.hjungwoo01.calendarapp.open_ai;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hjungwoo01.calendarapp.open_ai.data.Request;
-
-import com.hjungwoo01.calendarapp.open_ai.data.Request;
 import com.hjungwoo01.calendarapp.open_ai.data.OpenAiResponse;
+
+import org.json.JSONException;
 
 import java.util.concurrent.TimeUnit;
 
@@ -21,7 +23,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class OpenAiAPI {
 
     private static final String TAG = "OpenAiAPI";
-    private String mUrl = "https://api.openai.com/v1/";
+    private final String mUrl = "https://api.openai.com/v1/";
 
 
     //사용자 추천
@@ -43,10 +45,14 @@ public class OpenAiAPI {
         Call<OpenAiResponse> call = apiInterface.chat_gpt(request);
         call.enqueue(new Callback<OpenAiResponse>() {
             @Override
-            public void onResponse(Call<OpenAiResponse> call, Response<OpenAiResponse> response) {
+            public void onResponse(@NonNull Call<OpenAiResponse> call, @NonNull Response<OpenAiResponse> response) {
                 Log.d(TAG, "result: " + response.code() + " message : " + GSON.toJson(response.body()));
                 if(response.isSuccessful()) {
-                    callback.onSuccess(response.code(), response.body());
+                    try {
+                        callback.onSuccess(response.code(), response.body());
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
                 else
                     callback.onFailure(response.code());
@@ -54,7 +60,7 @@ public class OpenAiAPI {
             }
 
             @Override
-            public void onFailure(Call<OpenAiResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<OpenAiResponse> call, @NonNull Throwable t) {
                 Log.d(TAG, t.getMessage());
                 callback.onError(t);
 
