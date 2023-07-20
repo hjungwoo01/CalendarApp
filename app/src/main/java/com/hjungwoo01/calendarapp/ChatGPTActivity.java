@@ -15,8 +15,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.hjungwoo01.calendarapp.model.Event;
 import com.hjungwoo01.calendarapp.open_ai.OpenAiAPI;
 import com.hjungwoo01.calendarapp.open_ai.RetrofitCallback;
@@ -33,13 +31,8 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -55,6 +48,7 @@ public class ChatGPTActivity extends AppCompatActivity {
     private String sch_default;
     private String sch_create;
     private String sch_read;
+    private String new_sch_read;
     private String sch_update;
     private String sch_delete;
     private String prev_Intent = "default";
@@ -89,6 +83,7 @@ public class ChatGPTActivity extends AppCompatActivity {
         sch_read = fileContents.get(2);
         sch_update = fileContents.get(3);
         sch_delete = fileContents.get(4);
+        loadDB();
 
         messages = new ArrayList<>();
         Message sysMsg = new Message("system", sch_default);
@@ -135,7 +130,6 @@ public class ChatGPTActivity extends AppCompatActivity {
         request.setFrequency_penalty(0.0f);
         request.setPresence_penalty(0.0f);
 
-        loadDB();
         OpenAiAPI openAiAPI = new OpenAiAPI();
         openAiAPI.chat_gpt(request, new RetrofitCallback() {
             @Override
@@ -207,7 +201,7 @@ public class ChatGPTActivity extends AppCompatActivity {
                                     case "read": {
                                         if(!prev_Intent.equals("read")) {
                                             messages = new ArrayList<>();
-                                            Message sysMsg = new Message("system", sch_read);
+                                            Message sysMsg = new Message("system", new_sch_read);
                                             messages.add(sysMsg);
                                             messages.add(userMsg);
                                             prev_Intent = "read";
@@ -308,7 +302,7 @@ public class ChatGPTActivity extends AppCompatActivity {
                             (@NonNull Call<List<Event>> call, @NonNull Response<List<Event>> response) {
                         if (response.isSuccessful()) {
                             Event.eventsList = response.body();
-                            sch_read = sch_read.replace("{{events}}", Event.eventsListToString());
+                            new_sch_read = sch_read.replace("{{events}}", Event.eventsListToString());
                         } else {
                             Toast.makeText(ChatGPTActivity.this, "Failed to fetch events.", Toast.LENGTH_SHORT).show();
                         }
