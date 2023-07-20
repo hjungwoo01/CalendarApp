@@ -51,13 +51,13 @@ public class ChatGPTActivity extends AppCompatActivity {
     private EditText etText;
     private RecyclerView recyclerView;
     private ConversationAdapter recyclerAdapter;
-    private List<Event> events = Collections.emptyList();
     private List<Message> messages;
     private String sch_default;
     private String sch_create;
     private String sch_read;
     private String sch_update;
     private String sch_delete;
+    private String prev_Intent = "default";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,6 +135,7 @@ public class ChatGPTActivity extends AppCompatActivity {
         request.setFrequency_penalty(0.0f);
         request.setPresence_penalty(0.0f);
 
+        loadDB();
         OpenAiAPI openAiAPI = new OpenAiAPI();
         openAiAPI.chat_gpt(request, new RetrofitCallback() {
             @Override
@@ -158,12 +159,14 @@ public class ChatGPTActivity extends AppCompatActivity {
                                 String intent = jsonObject.getString("intent");
                                 switch (intent) {
                                     case "create": {
-                                        messages = new ArrayList<>();
-                                        Message sysMsg = new Message("system", sch_create);
-                                        messages.add(sysMsg);
-                                        messages.add(userMsg);
-
-                                        if (completion.equals("1")) {
+                                        if(!prev_Intent.equals("create")) {
+                                            messages = new ArrayList<>();
+                                            Message sysMsg = new Message("system", sch_create);
+                                            messages.add(sysMsg);
+                                            messages.add(userMsg);
+                                            prev_Intent = "create";
+                                        }
+                                        if (completion.equals("end")) {
                                             JSONObject schedulerObj = jsonObject.optJSONObject("scheduler");
                                             if (schedulerObj != null) {
                                                 String eventName = schedulerObj.getString("eventName");
@@ -185,6 +188,7 @@ public class ChatGPTActivity extends AppCompatActivity {
                                                     public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                                                         if (response.isSuccessful()) {
                                                             Toast.makeText(ChatGPTActivity.this, "Save successful.", Toast.LENGTH_SHORT).show();
+                                                            loadDB();
                                                         } else {
                                                             Toast.makeText(ChatGPTActivity.this, "Save failed.", Toast.LENGTH_SHORT).show();
                                                         }
@@ -201,26 +205,13 @@ public class ChatGPTActivity extends AppCompatActivity {
                                         break;
                                     }
                                     case "read": {
-                                        loadDB();
-
-                                        messages = new ArrayList<>();
-                                        Message sysMsg = new Message("system", sch_read);
-                                        messages.add(sysMsg);
-                                        messages.add(userMsg);
-//                                        JSONObject schedulerObj = jsonObject.optJSONObject("scheduler");
-//                                        if (schedulerObj != null) {
-//                                            String startDate = schedulerObj.optString("eventStart").substring(0, 8);
-//
-//                                            int i = 1;
-//                                            LocalDate selectedDate = parseDate(startDate);
-//                                            for (Event e : events) {
-//                                                if ((selectedDate.isEqual(e.getStartDate()) || selectedDate.isAfter(e.getStartDate())) &&
-//                                                        selectedDate.isBefore(e.getEndDate().plusDays(1))) {
-//                                                    message.append("\n").append(i).append(". ").append(e);
-//                                                }
-//                                            }
-//                                            aiMsg.setContent(message.toString());
-//                                        }
+                                        if(!prev_Intent.equals("read")) {
+                                            messages = new ArrayList<>();
+                                            Message sysMsg = new Message("system", sch_read);
+                                            messages.add(sysMsg);
+                                            messages.add(userMsg);
+                                            prev_Intent = "read";
+                                        }
                                         break;
                                     }
                                     case "update": {
@@ -308,11 +299,6 @@ public class ChatGPTActivity extends AppCompatActivity {
         });
     }
 
-    private LocalDate parseDate(String date) throws DateTimeParseException {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd", Locale.getDefault());
-        return LocalDate.parse(date, formatter);
-    }
-
     private void loadDB() {
         RetrofitService retrofitService = new RetrofitService();
         EventApi eventApi = retrofitService.getRetrofit().create(EventApi.class);
@@ -321,9 +307,8 @@ public class ChatGPTActivity extends AppCompatActivity {
                     public void onResponse
                             (@NonNull Call<List<Event>> call, @NonNull Response<List<Event>> response) {
                         if (response.isSuccessful()) {
-                            events = response.body();
-                            assert events != null;
-                            sch_read = sch_read.replace("{{events}}", events.toString());
+                            Event.eventsList = response.body();
+                            sch_read = sch_read.replace("{{events}}", Event.eventsListToString());
                         } else {
                             Toast.makeText(ChatGPTActivity.this, "Failed to fetch events.", Toast.LENGTH_SHORT).show();
                         }
