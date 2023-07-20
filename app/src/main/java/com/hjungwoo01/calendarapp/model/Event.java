@@ -210,8 +210,7 @@ public class Event implements Serializable {
                 Objects.equals(eventEndRepeat, other.eventEndRepeat);
     }
 
-    @Override
-    public String toString() {
+    public static String eventsListToString() {
         StringBuilder json = new StringBuilder();
         json.append("[");
         for (int i = 0; i < eventsList.size(); i++) {
