@@ -118,13 +118,12 @@ public class ChatGPTActivity extends AppCompatActivity {
     private void OpenAI(String query) {
         Message userMsg = new Message("user", query);
         messages.add(userMsg);
-        String fixed = "//<답변 시 사용자의 대화의 맥락에 맞는 말과 항상 끝에 JSON포맷을 유지할 것!>";
-        userMsg.setContent(query + fixed);
+        userMsg.setContent(query);
 
         Request request = new Request();
         request.setModel("gpt-3.5-turbo-0613");
         request.setMessages(messages);
-        request.setTemperature(0.7f);
+        request.setTemperature(0.5f);
         request.setMax_tokens(500);
         request.setTop_p(1);
         request.setFrequency_penalty(0.0f);
@@ -139,9 +138,8 @@ public class ChatGPTActivity extends AppCompatActivity {
                 if (response != null) {
                     Message aiMsg = response.getChoices().get(0).getMessage();
                     String[] inputs = aiMsg.getContent().split("//");
-//                    StringBuilder message = new StringBuilder(inputs[0]);
-                    StringBuilder message = new StringBuilder(aiMsg.getContent());
-                    aiMsg.setContent(message.toString());
+//                    StringBuilder message = new StringBuilder(aiMsg.getContent());
+                    aiMsg.setContent(inputs[0]);
                     if (aiMsg.getRole().equals("assistant")) {
                         if (inputs.length == 2) {
                             RetrofitService retrofitService = new RetrofitService();
@@ -208,68 +206,68 @@ public class ChatGPTActivity extends AppCompatActivity {
                                         }
                                         break;
                                     }
-                                    case "update": {
-                                        JSONObject schedulerObj = jsonObject.optJSONObject("scheduler");
-                                        if (schedulerObj != null) {
-                                            long id = Long.parseLong(schedulerObj.getString("id"));
-                                            String eventName = schedulerObj.getString("eventName");
-                                            String eventMemo = schedulerObj.optString("eventMemo");
-                                            String eventStart = schedulerObj.getString("eventStart");
-                                            String eventEnd = schedulerObj.getString("eventEnd");
-                                            String eventRepeat = schedulerObj.optString("eventRepeat");
-                                            String eventEndRepeat = schedulerObj.optString("eventEndRepeat");
-
-                                            Event updatedEvent = new Event();
-                                            updatedEvent.setOwner("Person1");
-                                            updatedEvent.setEventName(eventName);
-                                            updatedEvent.setEventMemo(eventMemo);
-                                            updatedEvent.setEventStart(eventStart);
-                                            updatedEvent.setEventEnd(eventEnd);
-                                            updatedEvent.setEventRepeat(eventRepeat);
-                                            updatedEvent.setEventEndRepeat(eventEndRepeat);
-
-                                            eventApi.updateEvent(id, updatedEvent).enqueue(new Callback<Void>() {
-                                                @Override
-                                                public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-                                                    if (response.isSuccessful()) {
-                                                        Toast.makeText(ChatGPTActivity.this, "Update successful.", Toast.LENGTH_SHORT).show();
-                                                    } else {
-                                                        Toast.makeText(ChatGPTActivity.this, "Update failed.", Toast.LENGTH_SHORT).show();
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
-                                                    Toast.makeText(ChatGPTActivity.this, "Update failed.", Toast.LENGTH_SHORT).show();
-                                                    Log.e("ChatGPTActivity", "Error occurred: " + t.getMessage());
-                                                }
-                                            });
-                                        }
-                                        break;
-                                    }
-                                    case "delete": {
-                                        JSONObject schedulerObj = jsonObject.optJSONObject("scheduler");
-                                        if (schedulerObj != null) {
-                                            long id = Long.parseLong(schedulerObj.getString("id"));
-                                            eventApi.deleteEvent(id).enqueue(new Callback<Void>() {
-                                                @Override
-                                                public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-                                                    if (response.isSuccessful()) {
-                                                        Toast.makeText(ChatGPTActivity.this, "Event deleted.", Toast.LENGTH_SHORT).show();
-                                                    } else {
-                                                        Toast.makeText(ChatGPTActivity.this, "Failed to delete event.", Toast.LENGTH_SHORT).show();
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
-                                                    Toast.makeText(ChatGPTActivity.this, "Failed to delete event.", Toast.LENGTH_SHORT).show();
-                                                    Log.e("ChatGPTActivity", "Error occurred: " + t.getMessage());
-                                                }
-                                            });
-                                        }
-                                        break;
-                                    }
+//                                    case "update": {
+//                                        JSONObject schedulerObj = jsonObject.optJSONObject("scheduler");
+//                                        if (schedulerObj != null) {
+//                                            long id = Long.parseLong(schedulerObj.getString("id"));
+//                                            String eventName = schedulerObj.getString("eventName");
+//                                            String eventMemo = schedulerObj.optString("eventMemo");
+//                                            String eventStart = schedulerObj.getString("eventStart");
+//                                            String eventEnd = schedulerObj.getString("eventEnd");
+//                                            String eventRepeat = schedulerObj.optString("eventRepeat");
+//                                            String eventEndRepeat = schedulerObj.optString("eventEndRepeat");
+//
+//                                            Event updatedEvent = new Event();
+//                                            updatedEvent.setOwner("Person1");
+//                                            updatedEvent.setEventName(eventName);
+//                                            updatedEvent.setEventMemo(eventMemo);
+//                                            updatedEvent.setEventStart(eventStart);
+//                                            updatedEvent.setEventEnd(eventEnd);
+//                                            updatedEvent.setEventRepeat(eventRepeat);
+//                                            updatedEvent.setEventEndRepeat(eventEndRepeat);
+//
+//                                            eventApi.updateEvent(id, updatedEvent).enqueue(new Callback<Void>() {
+//                                                @Override
+//                                                public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+//                                                    if (response.isSuccessful()) {
+//                                                        Toast.makeText(ChatGPTActivity.this, "Update successful.", Toast.LENGTH_SHORT).show();
+//                                                    } else {
+//                                                        Toast.makeText(ChatGPTActivity.this, "Update failed.", Toast.LENGTH_SHORT).show();
+//                                                    }
+//                                                }
+//
+//                                                @Override
+//                                                public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+//                                                    Toast.makeText(ChatGPTActivity.this, "Update failed.", Toast.LENGTH_SHORT).show();
+//                                                    Log.e("ChatGPTActivity", "Error occurred: " + t.getMessage());
+//                                                }
+//                                            });
+//                                        }
+//                                        break;
+//                                    }
+//                                    case "delete": {
+//                                        JSONObject schedulerObj = jsonObject.optJSONObject("scheduler");
+//                                        if (schedulerObj != null) {
+//                                            long id = Long.parseLong(schedulerObj.getString("id"));
+//                                            eventApi.deleteEvent(id).enqueue(new Callback<Void>() {
+//                                                @Override
+//                                                public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+//                                                    if (response.isSuccessful()) {
+//                                                        Toast.makeText(ChatGPTActivity.this, "Event deleted.", Toast.LENGTH_SHORT).show();
+//                                                    } else {
+//                                                        Toast.makeText(ChatGPTActivity.this, "Failed to delete event.", Toast.LENGTH_SHORT).show();
+//                                                    }
+//                                                }
+//
+//                                                @Override
+//                                                public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+//                                                    Toast.makeText(ChatGPTActivity.this, "Failed to delete event.", Toast.LENGTH_SHORT).show();
+//                                                    Log.e("ChatGPTActivity", "Error occurred: " + t.getMessage());
+//                                                }
+//                                            });
+//                                        }
+//                                        break;
+//                                    }
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
