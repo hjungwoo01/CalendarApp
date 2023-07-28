@@ -20,15 +20,15 @@ public interface FileApi {
     @GET("/memos/files/get/{id}")
     Call<ResponseBody> getFile(@Path("id") long id);
 
-    @GET("/memos/files/getByMemoId/{memoId}")
+    @GET("/memos/files/get-by-memo-id/{memoId}")
     Call<ResponseBody> getFileByMemoId(@Path("memoId")long memoId);
 
     @POST("/memos/files/upload")
     Call<Void> upload(@Body File file);
 
-    @DELETE("/memos/files/deleteByMemoId/{memoId}")
+    @DELETE("/memos/files/delete-by-memo-id/{memoId}")
     Call<Void> deleteFileByMemoId(@Path("memoId") long memoId);
 
-    @PUT("/memos/files/updateByMemoId/{memoId}")
+    @PUT("/memos/files/update-by-memo-id/{memoId}")
     Call<Void> updateFileByMemoId(@Path("memoId") long memoId, @Body File file);
 }
