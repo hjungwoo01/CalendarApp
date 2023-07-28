@@ -49,8 +49,8 @@ public class ChatGPTActivity extends AppCompatActivity {
     private String sch_create;
     private String sch_read;
     private String new_sch_read;
-    private String sch_update;
-    private String sch_delete;
+//    private String sch_update;
+//    private String sch_delete;
     private String prev_Intent = "default";
 
     @Override
@@ -59,7 +59,7 @@ public class ChatGPTActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chatgpt);
 
         Context context = getApplicationContext();
-        String[] fileNames = {"sch_default.txt", "sch_create.txt", "sch_read.txt", "sch_update.txt", "sch_delete.txt"};
+        String[] fileNames = {"sch_default.txt", "sch_create.txt", "sch_read.txt"/*, "sch_update.txt", "sch_delete.txt"*/};
         List<String> fileContents = new ArrayList<>();
         try {
             for (String fileName : fileNames) {
@@ -81,8 +81,8 @@ public class ChatGPTActivity extends AppCompatActivity {
         sch_default = fileContents.get(0);
         sch_create = fileContents.get(1);
         sch_read = fileContents.get(2);
-        sch_update = fileContents.get(3);
-        sch_delete = fileContents.get(4);
+//        sch_update = fileContents.get(3);
+//        sch_delete = fileContents.get(4);
         loadDB();
 
         messages = new ArrayList<>();
@@ -133,13 +133,11 @@ public class ChatGPTActivity extends AppCompatActivity {
         openAiAPI.chat_gpt(request, new RetrofitCallback() {
             @Override
             public void onSuccess(int code, Object receivedData) throws JSONException {
-                etText.setText("");
                 OpenAiResponse response = (OpenAiResponse) receivedData;
                 if (response != null) {
                     Message aiMsg = response.getChoices().get(0).getMessage();
                     String[] inputs = aiMsg.getContent().split("//");
-//                    StringBuilder message = new StringBuilder(aiMsg.getContent());
-                    aiMsg.setContent(inputs[0]);
+                    messages.add(aiMsg);
                     if (aiMsg.getRole().equals("assistant")) {
                         if (inputs.length == 2) {
                             RetrofitService retrofitService = new RetrofitService();
@@ -152,10 +150,11 @@ public class ChatGPTActivity extends AppCompatActivity {
                                 switch (intent) {
                                     case "create": {
                                         if(!prev_Intent.equals("create")) {
-                                            messages = new ArrayList<>();
+                                            messages.clear();
                                             Message sysMsg = new Message("system", sch_create);
                                             messages.add(sysMsg);
                                             messages.add(userMsg);
+                                            messages.add(aiMsg);
                                             prev_Intent = "create";
                                         }
                                         if (completion.equals("end")) {
@@ -198,10 +197,11 @@ public class ChatGPTActivity extends AppCompatActivity {
                                     }
                                     case "read": {
                                         if(!prev_Intent.equals("read")) {
-                                            messages = new ArrayList<>();
+                                            messages.clear();
                                             Message sysMsg = new Message("system", new_sch_read);
                                             messages.add(sysMsg);
                                             messages.add(userMsg);
+                                            messages.add(aiMsg);
                                             prev_Intent = "read";
                                         }
                                         break;
@@ -274,8 +274,8 @@ public class ChatGPTActivity extends AppCompatActivity {
                             }
                         }
                     }
-                    messages.add(aiMsg);
-                    recyclerAdapter.setConversationList((ArrayList<Message>) messages);
+                    recyclerAdapter.setConversationList(messages);
+                    etText.setText("");
                 }
             }
 

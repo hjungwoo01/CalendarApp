@@ -12,9 +12,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.hjungwoo01.calendarapp.open_ai.data.Message;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ViewHolder> {
-    private ArrayList<Message> list;
+    private List<Message> list;
 
     @NonNull
     @Override
@@ -30,7 +31,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    public void setConversationList(ArrayList<Message> list) {
+    public void setConversationList(List<Message> list) {
         this.list = list;
         this.notifyDataSetChanged();
     }
@@ -50,7 +51,8 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
         void onBind(Message item){
             String messageTemplate = itemView.getContext().getString(R.string.message_template);
-            String formattedMessage = String.format(messageTemplate, item.getRole(), item.getContent());
+            String[] filter = item.getContent().split("//");
+            String formattedMessage = String.format(messageTemplate, item.getRole(), filter[0]);
             message.setText(formattedMessage);
         }
     }
